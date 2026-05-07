@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>解剖白色巨塔</title>
+</head>
+<body>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -15,11 +23,24 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
 .title-wrap{text-align:center;padding:50px 20px 34px}
 .game-logo{font-size:48px;font-weight:700;letter-spacing:-2px;margin-bottom:7px}
 .game-eng{font-size:11px;letter-spacing:5px;color:var(--text-ter);text-transform:uppercase;margin-bottom:38px}
-.mode-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:620px;margin:0 auto 22px}
-.mode-card{background:var(--bg-card);border:1.5px solid var(--border-mid);border-radius:14px;padding:26px 18px;cursor:pointer;transition:border-color .15s,transform .12s;text-align:left}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:620px;margin:0 auto 22px}
+.mode-card{background:var(--bg-card);border:1.5px solid var(--border-mid);border-radius:16px;padding:30px 22px;cursor:pointer;transition:border-color .15s,transform .12s;text-align:left}
 .mode-card:hover{border-color:var(--accent-blue);transform:translateY(-3px)}
 .mode-card.tutorial{border-color:var(--accent-yellow)}.mode-card.tutorial:hover{background:rgba(255,215,0,.07)}
-.mode-icon{font-size:29px;margin-bottom:10px}.mode-name{font-size:16px;font-weight:600;margin-bottom:3px}.mode-desc{font-size:12px;color:var(--text-sec)}
+.mode-card.training{border-color:rgba(255,255,255,.5)}.mode-card.training:hover{background:rgba(255,255,255,.05)}.mode-card.training .mode-name,.mode-card.training .mode-desc{color:#fff}
+.mode-card.ai-mode{border-color:var(--accent-red)}.mode-card.ai-mode:hover{background:rgba(255,107,107,.07)}
+/* Toast notification (non-blocking) */
+#toastBar{position:fixed;top:80px;right:16px;z-index:500;width:min(92vw,340px);pointer-events:none}
+.toast-box{background:var(--bg-panel);border-radius:14px;padding:14px 18px;margin-top:10px;box-shadow:0 4px 32px rgba(0,0,0,.55);border:1.5px solid var(--border-mid);opacity:0;transition:opacity .3s;pointer-events:all}
+.toast-box.show{opacity:1}
+.toast-title{font-size:14px;font-weight:700;margin-bottom:5px;color:var(--text-pri)}
+.toast-body{font-size:13px;color:var(--text-sec);line-height:1.6;margin-bottom:10px}
+.toast-ok{padding:6px 18px;border:1px solid rgba(255,255,255,.55);border-radius:8px;background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.toast-ok:hover{background:rgba(255,255,255,.1)}
+/* Tutorial section highlight */
+.tut-highlight{transition:box-shadow .35s,border-color .35s}
+.tut-highlight.lit{box-shadow:0 0 0 2px var(--accent-yellow),0 0 20px 5px rgba(255,215,0,.3)!important;border-color:var(--accent-yellow)!important}
+.mode-icon{font-size:34px;margin-bottom:12px}.mode-name{font-size:19px;font-weight:700;margin-bottom:5px}.mode-desc{font-size:13px;color:var(--text-sec)}
 .tutorial-wrap{max-width:820px;margin:0 auto;padding:24px 0}
 .tut-title{font-size:23px;font-weight:700;margin-bottom:5px}.tut-sub{font-size:13px;color:var(--text-sec);margin-bottom:20px}
 .tut-section{background:var(--bg-card);border:1.5px solid var(--border-mid);border-radius:14px;padding:15px 17px;margin-bottom:11px}
@@ -119,8 +140,10 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
 .prof-countdown.urgent{color:var(--accent-red);animation:cdPulse .6s infinite}
 .gw-flip-bar{background:var(--bg-panel);border:1.5px solid var(--accent-orange);border-radius:14px;padding:13px;margin-bottom:10px}
 .gw-flip-title{font-size:13px;font-weight:700;color:var(--accent-orange);margin-bottom:9px}
-.gw-player-row{display:flex;flex-wrap:wrap;gap:9px}
-.gw-player-col{flex:1;min-width:130px;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:10px;padding:8px}
+.gw-player-row{display:flex;flex-direction:column;gap:9px}
+.gw-player-col{background:var(--bg-card);border:1px solid var(--border-mid);border-radius:10px;padding:8px}
+.gw-others-row{display:flex;flex-wrap:wrap;gap:7px}
+.gw-others-row .gw-player-col{flex:1;min-width:140px}
 .gw-player-name{font-size:11px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .ai-daai-bar{background:var(--bg-panel);border:1.5px solid var(--accent-green);border-radius:14px;padding:13px;margin-bottom:10px}
 .ai-daai-title{font-size:13px;font-weight:700;color:var(--accent-green);margin-bottom:9px}
@@ -129,31 +152,33 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
 .ai-daai-col-title{font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:6px}
 .hand-sec{background:var(--bg-card);border:1.5px solid var(--border-mid);border-radius:14px;padding:12px;margin-bottom:10px}
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-.sec-title{font-size:13px;font-weight:600;color:var(--text-sec)}.hand-grid{display:flex;flex-wrap:wrap;gap:6px;min-height:50px}
-.card{width:102px;min-height:150px;border:2.5px solid;border-radius:10px;padding:7px;cursor:pointer;transition:transform .12s,box-shadow .12s,background-color .2s;background:var(--bg-card);display:flex;flex-direction:column;position:relative}
+.sec-title{font-size:13px;font-weight:600;color:var(--text-sec)}.hand-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;min-height:50px}
+.card{min-width:0;min-height:170px;border:2.5px solid;border-radius:10px;padding:8px;cursor:pointer;transition:transform .12s,box-shadow .12s,background-color .2s;background:var(--bg-card);display:flex;flex-direction:column;position:relative}
 .card:hover:not(.disabled){transform:translateY(-5px)}.card.sel{transform:translateY(-11px);outline:3px solid var(--accent-blue);outline-offset:2px}
 .card.disabled{opacity:.35;cursor:default;transform:none !important}
 .card.glow{box-shadow:0 0 0 3px #fff,0 0 16px 6px rgba(255,255,255,.85),0 0 28px 10px rgba(200,230,255,.5) !important;outline:none}
+.card.gold-highlight{box-shadow:0 0 0 2.5px #c084fc,0 0 14px 5px rgba(192,132,252,.6) !important;border-color:#c084fc !important}
 .card-muscle.glow{background-color:#2a1e1e !important}
 .card-artery.glow{background-color:#1e2440 !important}
 .card-nerve.glow{background-color:#1e2e28 !important}
 .card.sel.glow{transform:translateY(-11px);outline:3px solid var(--accent-blue);outline-offset:2px;box-shadow:0 0 0 3px #fff,0 0 16px 6px rgba(255,255,255,.85)}
 @keyframes newCardFlash{0%{box-shadow:0 0 0 3px var(--accent-yellow),0 0 18px 7px rgba(255,215,0,.8)}70%{box-shadow:0 0 0 3px var(--accent-yellow),0 0 12px 4px rgba(255,215,0,.4)}100%{box-shadow:none}}
 .card.new-card{animation:newCardFlash 3s ease-out forwards}
+.card.new-card-long{animation:newCardFlash 8s ease-out forwards}
 .card-muscle{border-color:var(--muscle-col)}.card-artery{border-color:var(--artery-col)}.card-nerve{border-color:var(--nerve-col)}
-.c-zh{font-size:12px;font-weight:600;line-height:1.3;margin-bottom:1px}
-.c-en{font-size:8px;color:var(--text-ter);font-style:italic;margin-bottom:2px;line-height:1.3}
+.c-zh{font-size:13px;font-weight:700;line-height:1.3;margin-bottom:1px}
+.c-en{font-size:9px;color:var(--text-ter);font-style:italic;margin-bottom:2px;line-height:1.3}
 .c-loc{font-size:8px;padding:1px 4px;border-radius:7px;display:inline-block;margin-bottom:2px}
 .card-muscle .c-loc{background:rgba(255,107,107,.2);color:var(--muscle-col)}
 .card-artery .c-loc{background:rgba(74,158,255,.2);color:var(--artery-col)}
 .card-nerve .c-loc{background:rgba(74,255,158,.2);color:var(--nerve-col)}
-.c-type{font-size:9px;color:var(--text-ter);margin-bottom:2px}
+.c-type{display:none}
 .c-divider{height:0.5px;background:var(--border-dim);margin:2px 0}
-.c-pairs-label{font-size:7.5px;color:var(--text-ter);margin-bottom:1px;font-weight:600}
-.c-pair-item{font-size:8px;line-height:1.55}
+.c-pairs-label{font-size:9px;color:var(--text-sec);margin-bottom:2px;font-weight:700;letter-spacing:.2px}
+.c-pair-item{font-size:9.5px;line-height:1.6;font-weight:500}
 .c-pair-muscle{color:var(--muscle-col)}.c-pair-artery{color:var(--artery-col)}.c-pair-nerve{color:var(--nerve-col)}
 .c-remain{font-size:7.5px;color:var(--text-ter);margin-top:auto;padding-top:2px;border-top:0.5px solid var(--border-dim)}
-.card-back{width:102px;min-height:150px;background:var(--bg-panel);border:1.5px solid var(--border-mid);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-ter)}
+.card-back{min-height:170px;background:var(--bg-panel);border:1.5px solid var(--border-mid);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-ter)}
 .others-sec{background:var(--bg-card);border:1.5px solid var(--border-mid);border-radius:14px;padding:11px;margin-bottom:10px}
 .others-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
 .opb{border:1px solid var(--border-mid);border-radius:10px;padding:8px;display:flex;gap:7px}
@@ -217,13 +242,19 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
 <div id="titleScreen" class="screen active">
   <div class="title-wrap">
     <div class="game-logo">解剖白色巨塔</div>
-    <div class="game-eng">Dissecting the Cold White Tower</div>
+    <div class="game-eng">Dissecting the Cold White</div>
+    <div style="font-size:13px;color:var(--text-sec);letter-spacing:2px;margin-bottom:30px">卡牌配對　角色扮演　玩轉艱澀解剖學</div>
     <div class="mode-grid">
-      <div class="mode-card" onclick="goRolePick('ai')"><div class="mode-icon">🤖</div><div class="mode-name">對戰機器人</div><div class="mode-desc">你 vs 3–5 個AI</div></div>
+      <div class="mode-card ai-mode" onclick="goRolePick('ai')"><div class="mode-icon">🤖</div><div class="mode-name">對戰機器人</div><div class="mode-desc">你 vs 3–5 個AI</div></div>
       <div class="mode-card" style="opacity:.35;pointer-events:none"><div class="mode-icon">👥</div><div class="mode-name">本地多人</div><div class="mode-desc">即將推出</div></div>
+      <div class="mode-card training" onclick="startTrainingMode()"><div class="mode-icon">🩺</div><div class="mode-name">實習生的探索</div><div class="mode-desc">新手訓練</div></div>
       <div class="mode-card tutorial" onclick="show('tutorialScreen')"><div class="mode-icon">📖</div><div class="mode-name">遊戲教學</div><div class="mode-desc">規則・角色・攻略</div></div>
     </div>
-    <div style="font-size:12px;color:var(--text-ter)">配對肌肉・動脈・神經，獲得最高積分者勝利</div>
+    <div style="margin-bottom:20px"></div>
+    <div style="border-top:0.5px solid var(--border-dim);padding-top:18px;max-width:620px;margin:0 auto;text-align:center">
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:8px">遊戲製作人：Xunder　｜　配樂製作人：Xunder</div>
+      <div style="font-size:12px;color:var(--text-ter);line-height:2">鳴謝：羣哥、lawrence古菌、Ben123153、Morine Huang、黃淇涔、林冠儒、易廷耘，zeczec團隊</div>
+    </div>
   </div>
 </div>
 <!-- TUTORIAL -->
@@ -275,20 +306,33 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
         <tr><td>🏥 醫院評鑑</td><td>下一整輪所有玩家抽牌改為2張、棄牌也改為2張</td></tr>
       </table>
     </div>
-    <button class="tut-back-btn" onclick="show('titleScreen')">← 返回主選單</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+      <button class="tut-back-btn" onclick="show('titleScreen')">← 返回主選單</button>
+      <button class="tut-back-btn" style="background:var(--accent-green);color:#000" onclick="startTrainingMode()">🩺 進入實習生的探索（實戰教學）</button>
+      <button class="tut-back-btn" style="background:var(--bg-panel);color:var(--accent-blue);border:1.5px solid var(--accent-blue)" onclick="show('anatomyRefScreen')">🔬 解剖配對對照表</button>
+    </div>
   </div>
 </div>
-<!-- ROLE PICK -->
+<!-- COMBINED ROLE + SETUP (single page) -->
 <div id="rolePickScreen" class="screen">
   <div class="pick-wrap">
-    <div class="pick-title">選擇你的角色</div><div class="pick-sub">從3張隨機角色牌中選1張</div>
-    <div class="role-cards-grid" id="roleCards"></div>
-    <div class="bonus-section" id="bonusDisplay"></div>
-    <button class="confirm-btn not-ready" id="roleConfirmBtn" onclick="confirmRole()">請先選擇角色</button>
+    <div class="pick-title" id="rolePickTitle">遊戲設定</div>
+    <div class="pick-sub" id="rolePickSub">設定玩家資訊並選擇角色</div>
+    <!-- Top: name + count -->
+    <div id="roleSetupTop"></div>
+    <!-- Middle: role cards -->
+    <div style="margin-bottom:11px">
+      <div class="form-label" style="margin-bottom:8px">選擇你的角色 <span style="color:var(--text-ter);font-size:11px">（3張隨機）</span></div>
+      <div class="role-cards-grid" id="roleCards"></div>
+    </div>
+    <!-- Bottom: bonus toggle -->
+    <div id="roleBonusArea"></div>
+    <!-- Start button -->
+    <button class="confirm-btn not-ready" id="roleConfirmBtn" onclick="doRoleConfirmStart()">請先選擇角色</button>
   </div>
 </div>
-<!-- SETUP -->
-<div id="setupScreen" class="screen">
+<!-- SETUP (legacy, hidden, kept for multi flow) -->
+<div id="setupScreen" class="screen" style="display:none!important">
   <div class="setup-wrap">
     <div class="setup-title" id="setupTitle">遊戲設定</div>
     <div id="setupBody"></div>
@@ -303,10 +347,34 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
     <button class="start-btn" onclick="confirmMultiRoles()">確認並開始遊戲</button>
   </div>
 </div>
+
+
+<!-- ANATOMY REFERENCE -->
+<div id="anatomyRefScreen" class="screen">
+  <div class="tutorial-wrap">
+    <div class="tut-title">🔬 解剖配對對照表</div>
+    <div class="tut-sub">所有肌肉卡牌的完美重建配對 — 動脈與神經對照</div>
+    <div class="tut-section">
+      <div class="tut-section-title">📋 使用說明</div>
+      <p class="tut-p">「完美重建」需要肌肉＋對應動脈＋對應神經，三張同時配對得 35 分。部分肌肉有多種可用動脈，每種都可與對應神經形成完美配對。</p>
+    </div>
+    <div class="tut-section" style="overflow-x:auto">
+      <table class="tut-table" style="min-width:520px">
+        <tr><th style="color:var(--muscle-col)">肌肉</th><th style="color:var(--text-ter)">英文</th><th>部位</th><th style="color:var(--artery-col)">配對動脈</th><th style="color:var(--nerve-col)">配對神經</th></tr>
+        <tr style="background:rgba(255,215,0,.06)"><td colspan="5" style="font-weight:700;color:var(--accent-yellow);font-size:12px;padding:8px 10px">🦾 上肢</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">三角肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">deltoid</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">胸肩峰動脈</td><td style="color:var(--nerve-col)">腋神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">肱二頭肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">biceps brachii</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">肱動脈</td><td style="color:var(--nerve-col)">肌皮神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">肱三頭肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">triceps brachii</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">深肱動脈</td><td style="color:var(--nerve-col)">橈神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">旋前圓肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">pronator teres</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">尺動脈</td><td style="color:var(--nerve-col)">正中神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">肱橈肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">brachioradialis</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">橈動脈</td><td style="color:var(--nerve-col)">橈神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">旋後肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">supinator</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">尺動脈</td><td style="color:var(--nerve-col)">橈神經深支</td></tr><tr><td rowspan="2" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">胸大肌</td><td rowspan="2" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">pectoralis major</td><td rowspan="2" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">胸肩峰動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對1</span></td><td style="color:var(--nerve-col)">外胸神經</td></tr><tr><td style="color:var(--artery-col)">外胸動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對2</span></td><td style="color:var(--nerve-col)">外胸神經</td></tr><tr><td rowspan="2" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">前鋸肌</td><td rowspan="2" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">serratus anterior</td><td rowspan="2" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">胸背動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對1</span></td><td style="color:var(--nerve-col)">長胸神經</td></tr><tr><td style="color:var(--artery-col)">外胸動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對2</span></td><td style="color:var(--nerve-col)">長胸神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">闊背肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">latissimus dorsi</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">上肢</td><td style="color:var(--artery-col)">胸背動脈</td><td style="color:var(--nerve-col)">胸背神經</td></tr><tr style="background:rgba(255,215,0,.06)"><td colspan="5" style="font-weight:700;color:var(--accent-yellow);font-size:12px;padding:8px 10px">🦵 下肢</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">股四頭肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">quadriceps femoris</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">股動脈</td><td style="color:var(--nerve-col)">股神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">半膜肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">semimembranosus</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">深股動脈</td><td style="color:var(--nerve-col)">坐骨神經脛骨支</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">內收長肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">adductor longus</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">閉孔動脈</td><td style="color:var(--nerve-col)">閉孔神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">脛前肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">tibialis anterior</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">前脛動脈</td><td style="color:var(--nerve-col)">深腓神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">腓腸肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">gastrocnemius</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">後脛動脈</td><td style="color:var(--nerve-col)">脛神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">腓長肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">fibularis longus</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">腓動脈</td><td style="color:var(--nerve-col)">淺腓神經</td></tr><tr><td rowspan="2" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">臀大肌</td><td rowspan="2" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">gluteus maximus</td><td rowspan="2" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">上臀動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對1</span></td><td style="color:var(--nerve-col)">下臀神經</td></tr><tr><td style="color:var(--artery-col)">下臀動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對2</span></td><td style="color:var(--nerve-col)">下臀神經</td></tr><tr><td rowspan="1" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">髂腰肌</td><td rowspan="1" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">iliopsoas</td><td rowspan="1" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">內髂動脈</td><td style="color:var(--nerve-col)">股神經</td></tr><tr><td rowspan="2" style="color:var(--muscle-col);font-weight:600;vertical-align:middle">梨狀肌</td><td rowspan="2" style="color:var(--text-ter);font-style:italic;font-size:11px;vertical-align:middle">piriformis</td><td rowspan="2" style="font-size:11px;color:var(--text-sec);vertical-align:middle">下肢</td><td style="color:var(--artery-col)">上臀動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對1</span></td><td style="color:var(--nerve-col)">薦神經叢</td></tr><tr><td style="color:var(--artery-col)">下臀動脈<span style="font-size:9px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:4px;padding:1px 5px;margin-left:4px">配對2</span></td><td style="color:var(--nerve-col)">薦神經叢</td></tr>
+      </table>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <button class="tut-back-btn" onclick="show('titleScreen')">← 主選單</button>
+      <button class="tut-back-btn" style="background:var(--bg-panel);color:var(--accent-blue);border:1.5px solid var(--accent-blue)" onclick="show('tutorialScreen')">📖 遊戲教學</button>
+      <button class="tut-back-btn" style="background:var(--accent-green);color:#000" onclick="startTrainingMode()">🩺 實習生的探索</button>
+    </div>
+  </div>
+</div>
 <!-- GAME -->
 <div id="gameScreen" class="screen">
   <div class="game-wrap">
-    <div class="g-header">
+    <div class="g-header tut-highlight" id="tutHeader">
       <div class="g-header-left">
         <div style="font-size:12px;color:var(--text-sec)">第<span id="gRound">1</span>回合・<span id="gTurnLabel">－</span></div>
         <div id="gPhase" class="g-phase phase-draw">抽牌</div>
@@ -317,7 +385,7 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
       </div>
       <div class="g-header-right"><button class="quit-btn" onclick="confirmQuit()">✕ 退出</button></div>
     </div>
-    <div class="players-row" id="playersRow"></div>
+    <div class="players-row tut-highlight" id="playersRow"></div>
     <!-- 場中事件效果牌 -->
     <div id="activeEventBar" style="display:none;margin-bottom:10px;padding:8px 11px;background:rgba(255,215,0,.07);border:1px solid var(--accent-yellow);border-radius:12px"></div>
     <!-- 解剖教授 live bar -->
@@ -386,7 +454,7 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
     <div id="gongweiOverlay" style="display:none" class="skill-overlay">
       <div class="skill-overlay-title">公衛師：選1張手牌翻出</div>
       <div style="font-size:12px;color:var(--text-sec);margin-bottom:8px">屬性相同的才會被徵收，最多3張；被徵收玩家補1張牌；若無徵收則自動補抽1張。</div>
-      <div id="gwMyHand" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
+      <div id="gwMyHand" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;max-height:none;overflow:visible"></div>
       <div id="gwInfo" style="font-size:12px;color:var(--text-sec);margin-bottom:8px">請選1張</div>
       <div style="display:flex;gap:8px"><button class="abtn success" id="gwOKBtn" onclick="startGwFlip()" disabled>確認翻牌</button><button class="abtn" onclick="hideOv('gongweiOverlay')">取消</button></div>
     </div>
@@ -398,13 +466,13 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
       </div>
       <div style="display:flex;gap:8px;margin-top:9px;flex-wrap:wrap" id="daaiActBtns"></div>
     </div>
-    <div class="hand-sec">
+    <div class="hand-sec tut-highlight" id="tutHandSec">
       <div class="sec-hdr"><span class="sec-title" id="handTitle">手牌</span><span id="handHint" style="font-size:11px;color:var(--text-ter)"></span></div>
       <div class="hand-grid" id="handGrid"></div>
     </div>
     
-    <div class="act-sec"><div class="sel-info" id="selInfo"></div><div class="act-btns" id="actBtns"></div></div>
-    <div class="log-sec" id="gameLog"></div>
+    <div class="act-sec tut-highlight" id="tutActSec"><div class="sel-info" id="selInfo"></div><div class="act-btns" id="actBtns"></div></div>
+    <div class="log-sec tut-highlight" id="gameLog"></div>
   </div>
 </div>
 <!-- END -->
@@ -417,6 +485,8 @@ body{font-family:var(--font-sans,sans-serif);background:var(--bg-main);color:var
   </div>
 </div>
 </div>
+<!-- TOAST BAR -->
+<div id="toastBar"></div>
 <div class="skill-anim-bg" id="skillAnimBg"><div class="skill-anim-card" id="skillAnimCard"><div class="skill-anim-avatar" id="skillAnimAvatar"></div><div class="skill-anim-name" id="skillAnimName"></div><div class="skill-anim-desc" id="skillAnimDesc"></div><div class="skill-anim-target" id="skillAnimTarget"></div></div></div>
 <div class="modal-bg" id="modalBg"><div class="modal"><div class="modal-title" id="mTitle"></div><div id="mBody" class="modal-body"></div><div class="modal-acts" id="mActs"></div></div></div>
 
@@ -443,7 +513,7 @@ const ARTERIES=[{zh:'胸肩峰動脈',en:'thoracoacromial a.',loc:'上肢',copie
 const NERVES=[{zh:'腋神經',en:'axillary n.',loc:'上肢',copies:3,muscles:['三角肌'],arteries:['胸肩峰動脈']},{zh:'肌皮神經',en:'musculocutaneous n.',loc:'上肢',copies:3,muscles:['肱二頭肌'],arteries:['肱動脈']},{zh:'橈神經',en:'radial n.',loc:'上肢',copies:6,muscles:['肱三頭肌','肱橈肌'],arteries:['深肱動脈','橈動脈']},{zh:'正中神經',en:'median n.',loc:'上肢',copies:3,muscles:['旋前圓肌'],arteries:['尺動脈']},{zh:'橈神經深支',en:'deep br. radial n.',loc:'上肢',copies:3,muscles:['旋後肌'],arteries:['尺動脈']},{zh:'外胸神經',en:'lateral pectoral n.',loc:'上肢',copies:3,muscles:['胸大肌'],arteries:['胸肩峰動脈','外胸動脈']},{zh:'長胸神經',en:'long thoracic n.',loc:'上肢',copies:3,muscles:['前鋸肌'],arteries:['胸背動脈','外胸動脈']},{zh:'胸背神經',en:'thoracodorsal n.',loc:'上肢',copies:3,muscles:['闊背肌'],arteries:['胸背動脈']},{zh:'股神經',en:'femoral n.',loc:'下肢',copies:6,muscles:['股四頭肌','髂腰肌'],arteries:['股動脈','內髂動脈']},{zh:'坐骨神經脛骨支',en:'tibial br. sciatic n.',loc:'下肢',copies:3,muscles:['半膜肌'],arteries:['深股動脈']},{zh:'閉孔神經',en:'obturator n.',loc:'下肢',copies:3,muscles:['內收長肌'],arteries:['閉孔動脈']},{zh:'深腓神經',en:'deep fibular n.',loc:'下肢',copies:3,muscles:['脛前肌'],arteries:['前脛動脈']},{zh:'脛神經',en:'tibial n.',loc:'下肢',copies:3,muscles:['腓腸肌'],arteries:['後脛動脈']},{zh:'淺腓神經',en:'superficial fibular n.',loc:'下肢',copies:3,muscles:['腓長肌'],arteries:['腓動脈']},{zh:'下臀神經',en:'inferior gluteal n.',loc:'下肢',copies:3,muscles:['臀大肌','梨狀肌'],arteries:['上臀動脈','下臀動脈']},{zh:'薦神經叢',en:'S1-S2 ramus',loc:'下肢',copies:3,muscles:['梨狀肌'],arteries:['上臀動脈','下臀動脈']}];
 const TOTAL={};MUSCLES.forEach(m=>TOTAL[m.zh]=3);ARTERIES.forEach(a=>TOTAL[a.zh]=a.copies);NERVES.forEach(n=>TOTAL[n.zh]=n.copies);
 const NO_SKILL_BTN=['外科醫師','醫檢師','實習醫師'];
-const ALL_ROLES=[{name:'外科醫師',skill:'起始手牌10張，每次抽牌抽2張、棄牌也棄2張',cd:2},{name:'實習醫師',skill:'起始手牌7張，每次配對成功額外+10分',cd:2},{name:'護理師',skill:'配對成功後可宣告再次配對（冷卻1回合）',cd:2},{name:'醫檢師',skill:'抽牌時抽出3張，選1張入手，其餘放回',cd:2},{name:'心理師',skill:'立即+10分，詛咒1位玩家，對方下次配牌-10分；不得連續針對同一人（冷卻1回合）',cd:2},{name:'醫放師',skill:'強制2位玩家各交出1張手牌，各自可選擇收下（交換1張）或退還（冷卻1回合）',cd:2},{name:'解剖教授',skill:'其他玩家棄牌時，若與手牌能形成配對，可徵收並配對得分+10分，補2張牌（冷卻1回合）',cd:2},{name:'法醫',skill:'從棄牌堆選3張配對，額外+10分（抽牌後不可用，冷卻1回合）',cd:2},{name:'密醫',skill:'從棄牌堆選1張與自己手牌交換，+10分補償（冷卻1回合）',cd:2},{name:'大愛捐贈',skill:'選1張手牌詢問機器人；若需要則雙方配對得分，玩家額外+15分（冷卻1回合）',cd:2},{name:'公衛師',skill:'可抽1張牌，或發動技能：所有人翻1張手牌，屬性相同則徵收（最多3張），被徵收者補1張（冷卻1回合）',cd:2},{name:'難搞家屬',skill:'扣指定玩家10分（可至負分），轉移給自己；封鎖對方技能冷卻1回合；不得連續針對同一人（冷卻1回合）',cd:2}];
+const ALL_ROLES=[{name:'外科醫師',skill:'起始手牌10張，每次抽牌抽2張、棄牌也棄2張',cd:2},{name:'實習醫師',skill:'起始手牌7張，每次配對成功額外+10分',cd:2},{name:'護理師',skill:'配對成功後可宣告再次配對（冷卻1回合）',cd:2},{name:'醫檢師',skill:'抽牌時抽出3張，選1張入手，其餘放回',cd:2},{name:'心理師',skill:'立即+10分，詛咒1位玩家，對方下次配牌-10分；不得連續針對同一人（冷卻1回合）',cd:2},{name:'醫放師',skill:'強制2位玩家各交出1張手牌，各自可選擇收下（交換1張）或退還（冷卻1回合）',cd:2},{name:'解剖教授',skill:'其他玩家棄牌時，若與手牌能形成配對，可徵收並配對得分+10分，補2張牌（冷卻1回合）',cd:2},{name:'法醫',skill:'從棄牌堆選3張配對，額外+10分（抽牌後不可用，冷卻1回合）',cd:2},{name:'密醫',skill:'從棄牌堆選1張與自己手牌交換，+10分補償（冷卻1回合）',cd:2},{name:'大愛捐贈',skill:'選1張手牌詢問機器人；若需要則雙方配對得分，玩家額外+15分（冷卻1回合）',cd:2},{name:'公衛師',skill:'可抽1張牌，或發動技能：所有人翻1張手牌，屬性相同則徵收（最多3張），被徵收者補1張（冷卻1回合）',cd:2},{name:'難搞家屬',skill:'扣指定玩家15分（可至負分），轉移給自己；封鎖對方技能冷卻1回合；不得連續針對同一人（冷卻1回合）',cd:2}];
 
 let G={};
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -454,18 +524,351 @@ let _animQ=[],_animRun=false;
 function showSkillAnim(caster,role,desc,target,cb){_animQ.push({caster,role,desc,target,cb});if(!_animRun)runAnim();}
 function runAnim(){if(!_animQ.length){_animRun=false;return;}_animRun=true;const{caster,role,desc,target,cb}=_animQ.shift();const a=AVMAP[role]||{e:'👤'};document.getElementById('skillAnimAvatar').textContent=a.e;document.getElementById('skillAnimName').textContent=caster+' 發動【'+role+'】';document.getElementById('skillAnimDesc').textContent=desc||'';document.getElementById('skillAnimTarget').textContent=target?'目標：'+target:'';const bg=document.getElementById('skillAnimBg'),card=document.getElementById('skillAnimCard');card.classList.remove('pop');bg.classList.add('show');requestAnimationFrame(()=>card.classList.add('pop'));setTimeout(()=>{bg.classList.remove('show');if(cb)setTimeout(cb,100);setTimeout(runAnim,200);},2000);}
 
-function confirmQuit(){openModal('退出遊戲','確定要退出目前的遊戲？所有進度將會遺失。',`<button class="abtn" onclick="closeModal()">繼續遊戲</button><button class="abtn danger" onclick="closeModal();show('titleScreen')">確認退出</button>`);}
+function confirmQuit(){openModal('退出遊戲','確定要退出目前的遊戲？所有進度將會遺失。',`<button class="abtn" onclick="closeModal()">繼續遊戲</button><button class="abtn danger" onclick="closeModal();exitGame()">確認退出</button>`);}
+function exitGame(){// 清空 toast 佇列，避免訓練模式通知在退出後繼續出現
+_toastQueue=[];document.querySelectorAll('.toast-box').forEach(b=>b.remove());_toastRunning=false;
+// 清空動畫佇列
+_animQ=[];_animRun=false;const abg=document.getElementById('skillAnimBg');if(abg)abg.classList.remove('show');
+// 清除所有訓練模式黃色亮框
+document.querySelectorAll('.tut-highlight').forEach(el=>el.classList.remove('lit'));
+show('titleScreen');}
 
+// ── TRAINING MODE ────────────────────────────────────
+const TRAINING_ROLE={name:'實習生',skill:'無特殊技能',cd:'無'};
+
+// ── Toast notification system ─────────────────────────
+let _toastQueue=[],_toastRunning=false;
+function showToast(title,body,color,onOk){
+  _toastQueue.push({title,body,onOk});
+  if(!_toastRunning)runToast();
+}
+function showToastClear(title,body,onOk){
+  // Clear pending queue (used by tutorial to prevent duplicates)
+  _toastQueue=[];
+  document.querySelectorAll('.toast-box').forEach(b=>b.remove());
+  _toastRunning=false;
+  showToast(title,body,null,onOk);
+}
+function runToast(){
+  if(!_toastQueue.length){_toastRunning=false;return;}
+  _toastRunning=true;
+  const t=_toastQueue.shift();
+  const bar=document.getElementById('toastBar');
+  const box=document.createElement('div');
+  box.className='toast-box';
+  const title=document.createElement('div');title.className='toast-title';title.textContent=t.title;
+  const body=document.createElement('div');body.className='toast-body';body.innerHTML=t.body||'';
+  const btn=document.createElement('button');btn.className='toast-ok';btn.textContent='✓ 了解';
+  btn.addEventListener('click',function(){
+    box.classList.remove('show');
+    setTimeout(function(){box.remove();if(t.onOk)t.onOk();_toastRunning=false;runToast();},300);
+  });
+  box.appendChild(title);box.appendChild(body);box.appendChild(btn);
+  bar.appendChild(box);
+  requestAnimationFrame(function(){box.classList.add('show');});
+}
+
+// ── Training tutorial step state ──────────────────────
+let _tStep=0; // 0=intro shown, 1=glow shown, 2=ready to match, 3=newcard shown, 4=discard shown
+
+function startTrainingMode(){
+  G={mode:'training',bonusEnabled:false,aiCount:2,_tStep:0,_trainingMode:true};
+  const pl=[mkP('實習生',false,TRAINING_ROLE)];
+  for(let i=0;i<2;i++)pl.push(mkP('機器人'+(i+1),true,TRAINING_ROLE));
+  _initTrainingHandWithPerfect(pl);
+}
+function _doStartTraining(){ startTrainingMode(); }
+
+function _initTrainingHandWithPerfect(players){
+  // Build upper-limb-only deck for training
+  const deck=buildTrainingDeck();
+  const human=players[0];
+
+  // ── Perfect rebuild: 三角肌 + 胸肩峰動脈 + 腋神經 ──
+  // (first upper-limb muscle with matching artery+nerve)
+  let pm=null,pa=null,pn=null;
+  const upperMuscles=MUSCLES.filter(m=>m.loc==='上肢');
+  for(const m of upperMuscles){
+    const a=ARTERIES.find(x=>x.loc==='上肢'&&x.zh===m.arteries[0]);
+    const n=NERVES.find(x=>x.loc==='上肢'&&x.zh===m.nerves[0]);
+    if(a&&n){pm={type:'muscle',...m,copies:3};pa={type:'artery',...a};pn={type:'nerve',...n};break;}
+  }
+
+  // ── Golden treatment: use 外胸動脈 (copies:6, upper limb) — 3 copies ──
+  // Pick a different upper-limb ARTERY with copies>=3 whose zh !== pa.zh as gold trio
+  let goldTypeName=null,goldType='artery';
+  const goldArtery=ARTERIES.find(a=>a.loc==='上肢'&&a.copies>=3&&a.zh!==(pa?pa.zh:''));
+  if(goldArtery){goldTypeName=goldArtery.zh;}
+  // fallback to a muscle if no artery works
+  if(!goldTypeName){
+    const gm=upperMuscles.find(m=>m.zh!==(pm?pm.zh:''));
+    if(gm){goldTypeName=gm.zh;goldType='muscle';}
+  }
+
+  // Remove perfect trio from deck
+  if(pm&&pa&&pn){
+    const rmi=deck.findIndex(c=>c.zh===pm.zh&&c.type==='muscle');if(rmi>=0)deck.splice(rmi,1);
+    const rai=deck.findIndex(c=>c.zh===pa.zh&&c.type==='artery');if(rai>=0)deck.splice(rai,1);
+    const rni=deck.findIndex(c=>c.zh===pn.zh&&c.type==='nerve');if(rni>=0)deck.splice(rni,1);
+  }
+
+  // Remove 3 copies of gold card from deck
+  let goldCards=[];
+  if(goldTypeName){
+    for(let i=0;i<3;i++){
+      const gi=deck.findIndex(c=>c.zh===goldTypeName&&c.type===goldType);
+      if(gi>=0){goldCards.push(deck.splice(gi,1)[0]);}
+    }
+  }
+
+  if(pm&&pa&&pn){
+    // Filler: 9 - 3(perfect) - goldCards.length, avoid reserved
+    const reserved=new Set([pm.zh,pa.zh,pn.zh,goldTypeName].filter(Boolean));
+    const targetFiller=9-3-goldCards.length;
+    let filler=0,guard=0;
+    while(filler<targetFiller&&deck.length&&guard<300){
+      guard++;const c=deck.pop();
+      if(!c.isEvent&&!reserved.has(c.zh)){human.hand.push(c);filler++;}
+    }
+    // Add gold cards, then perfect trio last (so sort puts them nicely)
+    goldCards.forEach(c=>human.hand.push(c));
+    human.hand.push(pm,pa,pn);
+  } else {
+    let dealt=0,guard=0;
+    while(dealt<9&&deck.length&&guard<100){guard++;const c=deck.pop();if(!c.isEvent){human.hand.push(c);dealt++;}}
+  }
+  human._s=sortHand(human.hand);
+  // Deal AI players
+  players.slice(1).forEach(p=>{let dealt=0,guard=0;while(dealt<9&&deck.length&&guard<100){guard++;const c=deck.pop();if(!c.isEvent){p.hand.push(c);dealt++;}}});
+  players.forEach(p=>p.bonusCard=null);
+  Object.assign(G,{deck,discard:[],players,currentPlayer:0,round:1,phase:'training_pause',selected:[],log:[],finalRound:false,_newCards:new Set(),_profMatches:[],_profSelIdx:-1,_profCDSec:0,_profSnapDisc:null,_profWaiting:false,_gwFlipState:null,_aiDaaiState:null,_daaibroadcast:null,_daaibroadcastCD:0,_yifangAI:null,_yifangTargets:null,_yifangHumanDone:{},_yifangHumanSel:null,_yifangCb:null,_trainingMode:true,_tStep:1,_milestone50:false,_milestone100:false});
+  initEventState();
+  window.checkMatch=_origCheckMatch||checkMatch;
+  if(_profCDTimer){clearInterval(_profCDTimer);_profCDTimer=null;}
+  if(_profDelayTimer){clearTimeout(_profDelayTimer);_profDelayTimer=null;}
+  if(_daaibroadcastTimer){clearInterval(_daaibroadcastTimer);_daaibroadcastTimer=null;}
+  log('🩺 實習生的探索 開始！','hl');
+  show('gameScreen');
+  G.phase='action';render();G.phase='training_pause';
+  // Start the UI tour sequence
+  setTimeout(_tutStep1_header, 300);
+}
+
+// ── Tutorial tour steps ─────────────────────────────────
+function _tutLit(id){ const el=document.getElementById(id);if(el)el.classList.add('lit'); }
+function _tutUnlit(id){ const el=document.getElementById(id);if(el)el.classList.remove('lit'); }
+
+function _tutStep1_header(){
+  _tutLit('tutHeader');
+  showToastClear(
+    '① 回合欄位',
+    '左上顯示回合數以及玩家階段；中間顯示牌庫剩餘牌數；最右邊有音樂開啟/關閉及退出按鈕，退出後記錄都會刪除。',
+    function(){
+      _tutUnlit('tutHeader');
+      setTimeout(_tutStep2_players, 200);
+    }
+  );
+}
+function _tutStep2_players(){
+  _tutLit('playersRow');
+  showToastClear(
+    '② 玩家欄位',
+    '白色字為玩家名稱，前方顯示即時排名，同分則依遊戲順位。名稱後顯示選擇的角色。<br><br>藍字顯示即時分數和手牌量，玩家起始皆分配 9 張手牌，除非特殊角色。',
+    function(){
+      _tutUnlit('playersRow');
+      setTimeout(_tutStep3_hand, 200);
+    }
+  );
+}
+function _tutStep3_hand(){
+  _tutLit('tutHandSec');
+  showToastClear(
+    '③ 手牌欄位',
+    '依照屬性分為<span style="color:var(--muscle-col)">紅色肌肉</span>、<span style="color:var(--artery-col)">藍色動脈</span>、<span style="color:var(--nerve-col)">綠色神經</span>，並按上下肢順位排序。此模式只顯示上肢的卡牌。',
+    function(){
+      _tutUnlit('tutHandSec');
+      setTimeout(_tutStep4_card, 200);
+    }
+  );
+}
+function _tutStep4_card(){
+  _tutLit('tutHandSec');
+  showToastClear(
+    '④ 認識卡牌',
+    '卡牌最上方顯示中文名和英文名，下方有「完美重建配對提示」，即這張牌獲得最高分的配對模式——需要對應的動脈和神經，稍後會再介紹。<br><br>每張卡牌最下方會顯示牌庫中相同卡牌的<strong>剩餘數量</strong>，大多數牌只有 3 張，少數有 6 張，請自行注意。',
+    function(){
+      _tutUnlit('tutHandSec');
+      setTimeout(_tutStep5_actBtns, 200);
+    }
+  );
+}
+function _tutStep5_actBtns(){
+  _tutLit('tutActSec');
+  showToastClear(
+    '⑤ 行動欄位',
+    '有抽牌、配對、棄牌等按鈕，讓你執行對應策略。',
+    function(){
+      _tutUnlit('tutActSec');
+      setTimeout(_tutStep6_log, 200);
+    }
+  );
+}
+function _tutStep6_log(){
+  _tutLit('gameLog');
+  showToastClear(
+    '⑥ 即時遊戲狀況',
+    '可以看見機器人或其他玩家的行動與事件紀錄。',
+    function(){
+      _tutUnlit('gameLog');
+      setTimeout(_tutStep7_flow, 200);
+    }
+  );
+}
+function _tutStep7_flow(){
+  showToastClear(
+    '⑦ 遊戲流程',
+    '① 抽一張牌<br>↓<br>② 選擇 3 張手牌進行配對，並棄 1 張手牌<br>　或　選擇 1 張手牌進行棄牌<br>↓<br>③ 結束回合',
+    function(){
+      // Unlock draw phase - player draws first, then we show glow toast
+      G._tStep=1;G.phase='draw';render();
+      log('▶ 請先抽1張牌！','hl');
+    }
+  );
+}
+function _tutStep8_glow(){
+  // Called after player draws in tStep===1
+  showToastClear(
+    '💡 白色螢光 = 完美配對',
+    '手牌中發白色螢光的牌組是「完美配對」，得35分，螢光會持續發光直到你選取。',
+    function(){
+      showToast(
+        '🔬 完美配對的定義',
+        '<span style="color:var(--muscle-col)">紅色肌肉</span>卡牌，搭配卡牌下方提示的<span style="color:var(--artery-col)">藍色動脈</span>和<span style="color:var(--nerve-col)">綠色神經</span>，三張組合即為「完美重建」。<br><br>請選取這 3 張螢光牌，按「配對」！',
+        null,
+        function(){
+          // tStep=2 = player must select the perfect trio and match it
+          G._tStep=2;G.phase='action';render();
+          log('▶ 請選取 3 張白色螢光牌，再按「配對」！','hl');
+        }
+      );
+    }
+  );
+}
+
+// Override doTrainingDraw to inject tutorial toasts
+function doTrainingDraw(){
+  if(G.phase!=='draw')return;const cp=G.players[G.currentPlayer];
+  if(!G.deck.length)return;const c=G.deck.pop();
+  if(!c.isEvent){cp.hand.push(c);addNew(cp,[c]);}
+  cp.drawnThisTurn=true;cp._s=sortHand(cp.hand);
+  log(cp.name+' 抽了1張牌');
+  if(!G.deck.length&&!G.finalRound){triggerFinal();return;}
+  // tStep===1: first draw in tutorial → pause and show glow toast
+  if(G._tStep===1){
+    G.phase='training_pause';G.selected=[];render();
+    setTimeout(_tutStep8_glow, 300);
+    return;
+  }
+  G.phase='action';G.selected=[];render();
+}
+
+// After match in training mode: extend new card glow to 6s + toast
+function _trainingAfterMatch(){
+  // Switch new cards to long-flash version
+  G.phase='training_pause_newcard';
+  // Temporarily mark all new cards with long animation
+  G._trainingLongFlash=true;
+  render();
+  // Apply long flash to new cards in DOM
+  document.querySelectorAll('.card.new-card').forEach(el=>{el.classList.remove('new-card');el.classList.add('new-card-long');});
+  // Keep new cards glowing for 6s then show toasts
+  setTimeout(()=>{
+    showToast('🟡 黃色螢光 = 新進卡牌','配對成功後會自動補 3 張手牌，補入的牌外框會變黃色持續約 3 秒。',null,()=>{
+      // Find a suggested discard: any card that is NOT part of the golden treatment set
+      const cp2=G.players[G.currentPlayer];
+      const hand=cp2._s||cp2.hand;
+      // Find the golden treatment group (3 same-named cards)
+      const nameCnt={};hand.forEach(c=>nameCnt[c.zh]=(nameCnt[c.zh]||0)+1);
+      const goldName=Object.entries(nameCnt).find(([,v])=>v>=3)?.[0];
+      const suggestion=goldName
+        ? '建議棄掉目前手牌中<strong>非「'+goldName+'」的任意一張牌</strong>'
+        : '建議棄掉目前手牌中<strong>任一張你覺得較不重要的牌</strong>';
+      showToast('🗑 請棄 1 張手牌',suggestion+'，點選後按「棄牌」按鈕。',null,()=>{
+        G._tStep=4;G.phase='must_discard';G._newCards=new Set();render();
+        log('▶ 請選 1 張手牌棄掉','hl');
+      });
+    });
+  },6000);
+}
+
+function aiTrainingTurn(){
+  const ai=G.players[G.currentPlayer];if(!ai.isAI)return;
+  if(G.deck.length){const c=G.deck.pop();if(!c.isEvent)ai.hand.push(c);}
+  ai.drawnThisTurn=true;log(ai.name+' 抽了1張牌');
+
+  // Score-aware accuracy
+  const human=G.players.find(p=>!p.isAI);
+  const scoreDiff=ai.score-(human?human.score:0);
+  let accuracy;
+  if(scoreDiff>20) accuracy=0.40+Math.random()*0.10;       // leading >20: 40-50%
+  else if(scoreDiff<-20) accuracy=0.60+Math.random()*0.30; // trailing >20: 60-90%
+  else accuracy=0.45+Math.random()*0.20;                    // close: 45-65%
+
+  const h=ai.hand;let best=null,bestCards=null;
+  for(let i=0;i<h.length-2;i++)for(let j=i+1;j<h.length-1;j++)for(let k=j+1;k<h.length;k++){
+    const trio=[h[i],h[j],h[k]];if(new Set(trio).size!==3)continue;
+    const r=checkMatch(trio);if(r&&(!best||r.pts>best.pts)){best=r;bestCards=trio;}
+  }
+  if(best&&bestCards&&Math.random()<accuracy){
+    log(applyM(ai,bestCards,best),'ok');
+    bestCards.forEach(card=>{const idx=ai.hand.findIndex(x=>x===card);if(idx>=0)ai.hand.splice(idx,1);});
+    drawSafe(ai,3);
+  } else if(best){
+    log(ai.name+' 猶豫中，選擇不配對');
+  }
+  if(ai.hand.length>0){const di=Math.floor(Math.random()*ai.hand.length);G.discard.push(ai.hand[di]);ai.discarded.push(ai.hand[di]);ai.hand.splice(di,1);}
+  log(ai.name+' 棄牌');
+  endTurnCD(ai);
+  if(!G.deck.length&&!G.finalRound){triggerFinal();return;}
+  G.selected=[];const next=(G.currentPlayer+1)%G.players.length;
+  if(next===0){G.round++;tickEventEffects();}
+  G.currentPlayer=next;G.phase='draw';startTurnCD(G.players[G.currentPlayer]);render();
+  if(G.players[G.currentPlayer].isAI)setTimeout(aiTrainingTurn,rndDTraining());
+  else log('▶ 你的回合！','hl');
+}
 // ── ROLE PICK ─────────────────────────────────────────
 function goRolePick(mode){
-  G={mode,bonusMode:false,bonusEnabled:false,aiCount:3,multiCount:2,selectedRoleIdx:undefined};
+  G={mode,bonusMode:false,bonusEnabled:false,aiCount:3,multiCount:2,selectedRoleIdx:undefined,aiDiff:'normal'};
   const s=[...ALL_ROLES].sort(()=>Math.random()-.5).slice(0,3);G.rolePick3=s;
+  // Title
+  document.getElementById('rolePickTitle').textContent=mode==='ai'?'對戰機器人 — 遊戲設定':'本地多人 — 遊戲設定';
+  document.getElementById('rolePickSub').textContent='設定玩家資訊並選擇你的角色';
+  // Top section: name + count
+  const topAI=`<div class="form-row"><label class="form-label">你的名字</label><input class="text-input" id="p0name" value="玩家1" maxlength="10"></div><div class="form-row"><div class="form-label">機器人數量</div><div class="cnt-btns" id="aiCntBtns"><button class="cnt-btn sel" onclick="selAiCnt(this,3)">3個</button><button class="cnt-btn" onclick="selAiCnt(this,4)">4個</button><button class="cnt-btn" onclick="selAiCnt(this,5)">5個</button></div></div><div class="form-row"><div class="form-label">遊戲難度</div><div class="cnt-btns" id="diffBtns"><button class="cnt-btn sel" onclick="selDiff(this,'easy')">😊 簡單</button><button class="cnt-btn" onclick="selDiff(this,'normal')">⚔️ 普通</button><button class="cnt-btn" onclick="selDiff(this,'elite')">💀 菁英</button></div></div>`;
+  const topMulti=`<div class="form-row"><div class="form-label">玩家人數</div><div class="cnt-btns" id="multiCntBtns">${[2,3,4,5,6].map(n=>`<button class="cnt-btn${n===2?' sel':''}" onclick="selMultiCnt(this,${n})">${n}人</button>`).join('')}</div></div><div id="nameFields"></div>`;
+  document.getElementById('roleSetupTop').innerHTML=mode==='ai'?topAI:topMulti;
+  if(mode==='multi'){G.multiCount=2;renderNameFields(2);}else{G.aiCount=3;}
+  // Role cards
   document.getElementById('roleCards').innerHTML=s.map((r,i)=>{const a=AVMAP[r.name]||{e:'👤',bg:'rgba(160,160,192,.25)'};return`<div class="role-card" id="rc${i}" onclick="pickRole(${i})"><div class="role-avatar" style="background:${a.bg}">${a.e}</div><div class="rc-name">${r.name}</div><div class="rc-skill">${r.skill}</div><div class="rc-cd">冷卻：1回合</div></div>`;}).join('');
-  document.getElementById('bonusDisplay').innerHTML=`<div class="bonus-section-title">🏅 加分卡</div><div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">在遊戲設定中啟用加分卡後，每位玩家將隨機獲得1張，加分效果只對持有者生效。</div><div class="bonus-grid">${ALL_BONUS.map(b=>`<div class="bonus-card-ui"><div class="bonus-card-name">${b.name}</div><div class="bonus-card-desc">${b.desc}</div></div>`).join('')}</div>`;
-  const btn=document.getElementById('roleConfirmBtn');btn.className='confirm-btn not-ready';btn.textContent='請先選擇角色';show('rolePickScreen');
+  // Bonus toggle
+  document.getElementById('roleBonusArea').innerHTML=`<div class="form-row"><div class="form-label">加分卡</div><div class="toggle-row" id="bonusTgl" onclick="toggleBonus()"><div class="toggle-box" id="bonusBox"></div><div><div class="tl-name">啟用加分卡</div><div class="tl-desc">每位玩家隨機分配1張加分卡（重訓狂熱・深蹲高手・物理治療・服用Statin・腦機介面・家庭醫師）</div></div></div></div>`;
+  const btn=document.getElementById('roleConfirmBtn');btn.className='confirm-btn not-ready';btn.textContent='請先選擇角色';
+  show('rolePickScreen');
 }
-function pickRole(i){G.selectedRoleIdx=i;document.querySelectorAll('#roleCards .role-card').forEach((c,j)=>c.classList.toggle('sel',j===i));const btn=document.getElementById('roleConfirmBtn');btn.className='confirm-btn ready';btn.textContent='選擇「'+G.rolePick3[i].name+'」，繼續設定';}
-function confirmRole(){if(G.selectedRoleIdx===undefined)return;G.playerRole=G.rolePick3[G.selectedRoleIdx];renderSetup();show('setupScreen');}
+function pickRole(i){G.selectedRoleIdx=i;document.querySelectorAll('#roleCards .role-card').forEach((c,j)=>c.classList.toggle('sel',j===i));const btn=document.getElementById('roleConfirmBtn');btn.className='confirm-btn ready';btn.textContent='▶ 開始遊戲（已選：'+G.rolePick3[i].name+'）';}
+function confirmRole(){if(G.selectedRoleIdx===undefined)return;G.playerRole=G.rolePick3[G.selectedRoleIdx];}
+function doRoleConfirmStart(){
+  if(G.selectedRoleIdx===undefined)return;
+  G.playerRole=G.rolePick3[G.selectedRoleIdx];
+  if(G.mode==='ai'){
+    const nameEl=document.getElementById('p0name');if(nameEl)G._p0name=nameEl.value||'玩家1';
+    startGameAI();
+  } else {
+    G.playerNames=[];
+    for(let i=0;i<G.multiCount;i++)G.playerNames.push(document.getElementById('pn'+i)?.value||'玩家'+(i+1));
+    renderMultiRolePick();show('multiRoleScreen');
+  }
+}
 
 // ── SETUP ─────────────────────────────────────────────
 function renderSetup(){
@@ -479,6 +882,7 @@ function renderSetup(){
   else{document.getElementById('setupBody').innerHTML=`<div class="form-row"><div class="form-label">玩家人數</div><div class="cnt-btns" id="multiCntBtns">${[2,3,4,5,6].map(n=>`<button class="cnt-btn${n===2?' sel':''}" onclick="selMultiCnt(this,${n})">${n}人</button>`).join('')}</div></div><div id="nameFields"></div>${bonusToggle}${roleBox}`;G.multiCount=2;renderNameFields(2);}
 }
 function selAiCnt(btn,n){document.querySelectorAll('#aiCntBtns .cnt-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');G.aiCount=n;}
+function selDiff(btn,d){document.querySelectorAll('#diffBtns .cnt-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');G.aiDiff=d;}
 function selMultiCnt(btn,n){document.querySelectorAll('#multiCntBtns .cnt-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');G.multiCount=n;renderNameFields(n);}
 function renderNameFields(n){const el=document.getElementById('nameFields');if(!el)return;el.innerHTML=Array.from({length:n},(_,i)=>`<div class="form-row"><label class="form-label">玩家${i+1}名字</label><input class="text-input" id="pn${i}" value="玩家${i+1}" maxlength="10"></div>`).join('');}
 function toggleBonus(){G.bonusEnabled=!G.bonusEnabled;document.getElementById('bonusTgl').classList.toggle('sel',G.bonusEnabled);document.getElementById('bonusBox').textContent=G.bonusEnabled?'✓':'';}
@@ -556,7 +960,15 @@ function buildDeck(){
   MUSCLES.forEach(m=>{for(let i=0;i<3;i++)d.push({type:'muscle',...m,copies:3})});
   ARTERIES.forEach(a=>{for(let i=0;i<a.copies;i++)d.push({type:'artery',...a})});
   NERVES.forEach(n=>{for(let i=0;i<n.copies;i++)d.push({type:'nerve',...n})});
-  // 先洗牌（不含事件牌）
+  for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  return d;
+}
+function buildTrainingDeck(){
+  // 訓練模式：只使用上肢卡牌
+  const d=[];
+  MUSCLES.filter(m=>m.loc==='上肢').forEach(m=>{for(let i=0;i<3;i++)d.push({type:'muscle',...m,copies:3})});
+  ARTERIES.filter(a=>a.loc==='上肢').forEach(a=>{for(let i=0;i<a.copies;i++)d.push({type:'artery',...a})});
+  NERVES.filter(n=>n.loc==='上肢').forEach(n=>{for(let i=0;i<n.copies;i++)d.push({type:'nerve',...n})});
   for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
   return d;
 }
@@ -579,7 +991,7 @@ function deal(p,deck){
     else{p.hand.push(c);dealt++;}
   }
 }
-function startGameAI(){const pname=document.getElementById('p0name')?.value||'玩家1';const used=G.playerRole.name;const rem=[...ALL_ROLES].filter(r=>r.name!==used).sort(()=>Math.random()-.5);const pl=[mkP(pname,false,G.playerRole)];for(let i=0;i<G.aiCount;i++)pl.push(mkP('機器人'+(i+1),true,rem[i%rem.length]));initGame(pl,Math.floor(Math.random()*pl.length));}
+function startGameAI(){const pname=G._p0name||(document.getElementById('p0name')?.value)||'玩家1';G._p0name=null;const used=G.playerRole.name;const rem=[...ALL_ROLES].filter(r=>r.name!==used).sort(()=>Math.random()-.5);const pl=[mkP(pname,false,G.playerRole)];for(let i=0;i<G.aiCount;i++)pl.push(mkP('機器人'+(i+1),true,rem[i%rem.length]));initGame(pl,Math.floor(Math.random()*pl.length));}
 function startGameMulti(){initGame(G.playerNames.map((name,i)=>mkP(name,false,G.multiSelectedRoles[i])),Math.floor(Math.random()*G.multiCount));}
 function initGame(players,startIdx){
   const deck=buildDeck();
@@ -602,7 +1014,8 @@ function initGame(players,startIdx){
   log('遊戲開始！'+players.length+'名玩家・牌庫'+deck.length+'張'+(G.bonusEnabled?'・加分卡啟用':''),'hl');
   log('先手：'+players[startIdx].name,'hl');
   players.forEach(p=>log(p.name+' → '+p.role.name+(p.bonusCard?' ／ 🏅'+p.bonusCard.name:'')));
-  show('gameScreen');render();if(players[startIdx].isAI)setTimeout(aiTurn,rndD());
+  show('gameScreen');
+  render();if(players[startIdx].isAI)setTimeout(G._trainingMode?aiTrainingTurn:aiTurn,rndD());
 }
 
 // ── COOLDOWN ─────────────────────────────────────────
@@ -682,6 +1095,7 @@ function dcnt(p){
 function internBonus(p){return(p.role.name==='實習醫師'&&!isBlocked(p))?10:0;}
 function addNew(cp,cards){G._newCards=G._newCards||new Set();cards.forEach(c=>G._newCards.add(c));}
 function rndD(){return 1000+Math.floor(Math.random()*4000);}
+function rndDTraining(){return 800+Math.floor(Math.random()*2200);}
 function tn(c){return c.type==='muscle'?'肌肉':c.type==='artery'?'動脈':'神經';}
 function getR(zh){let c=0;G.deck.forEach(x=>{if(x.zh===zh)c++;});G.players.forEach(p=>p.hand.forEach(x=>{if(x.zh===zh)c++;}));return c;}
 
@@ -707,7 +1121,32 @@ function applyM(cp,cards,result,extra){
   // 根管治療：最終強制為20分（蓋過所有加成）
   if(G._eventRootCanal)pts=20;
   cp.score+=pts;const btM={perfect:'sb-perfect',gold:'sb-gold',region:'sb-region',basic:'sb-basic'};cp.matched.push({bt:btM[result.mt],name:result.name,pts});
-  let msg=cp.name+' 配對【'+result.name+'】+'+pts+'分'+(G._eventRootCanal?' (根管治療固定20分)':'');if(!G._eventRootCanal&&names.length)msg+='（'+names.join('・')+'）';if(!G._eventRootCanal&&extra)msg+='（+'+extra+'）';return msg;
+  let msg=cp.name+' 配對【'+result.name+'】+'+pts+'分'+(G._eventRootCanal?' (根管治療固定20分)':'');if(!G._eventRootCanal&&names.length)msg+='（'+names.join('・')+'）';if(!G._eventRootCanal&&extra)msg+='（+'+extra+'）';
+  if(G._trainingMode&&!cp.isAI)_checkScoreMilestone(cp);
+  return msg;
+}
+function _checkScoreMilestone(cp){
+  const s=cp.score;
+  if(s>=100&&!G._milestone100){G._milestone100=true;_milestoneToast('這實習生真有潛力！',5000);}
+  else if(s>=50&&!G._milestone50){G._milestone50=true;_milestoneToast('恭喜獲得50分，有人漸入佳境囉！',5000);}
+}
+function _milestoneToast(msg,autoDismissMs){
+  const bar=document.getElementById('toastBar');
+  const box=document.createElement('div');
+  box.className='toast-box';box.style.borderColor='var(--accent-yellow)';
+  const body=document.createElement('div');
+  body.className='toast-body';body.style.fontWeight='700';body.style.color='var(--accent-yellow)';
+  body.textContent='🏆 '+msg;
+  box.appendChild(body);
+  bar.appendChild(box);
+  requestAnimationFrame(function(){box.classList.add('show');});
+  if(autoDismissMs>0){
+    setTimeout(function(){box.classList.remove('show');setTimeout(function(){box.remove();},300);},autoDismissMs);
+  } else {
+    const btn=document.createElement('button');btn.className='toast-ok';btn.textContent='✓ 了解';
+    btn.addEventListener('click',function(){box.classList.remove('show');setTimeout(function(){box.remove();},300);});
+    box.appendChild(btn);
+  }
 }
 
 // ── DISCARD POOL SORTER ───────────────────────────────
@@ -733,9 +1172,28 @@ function mCard(c,idx,dis,gs,isNew){
     return`<div class="card card-event"><div class="c-zh">${c.icon||'⚡'} ${c.zh}</div><div class="c-en">Event Card</div><div class="c-loc">事件效果</div><div class="c-type">⚡ 事件</div><div class="c-divider"></div><div class="c-pairs-label">${c.desc||''}</div></div>`;
   }
   const tc=`card-${c.type}`;const isSel=G.selected.includes(idx);const isGl=gs&&gs.has(idx)&&!dis;const rem=getR(c.zh);
-  let pairs='';if(c.type==='muscle')pairs=(c.arteries||[]).map(a=>`<div class="c-pair-item c-pair-artery">▶ ${a}</div>`).join('')+(c.nerves||[]).map(n=>`<div class="c-pair-item c-pair-nerve">▶ ${n}</div>`).join('');else if(c.type==='artery')pairs=(c.muscles||[]).map(m=>`<div class="c-pair-item c-pair-muscle">▶ ${m}</div>`).join('')+(c.nerves||[]).map(n=>`<div class="c-pair-item c-pair-nerve">▶ ${n}</div>`).join('');else pairs=(c.muscles||[]).map(m=>`<div class="c-pair-item c-pair-muscle">▶ ${m}</div>`).join('')+(c.arteries||[]).map(a=>`<div class="c-pair-item c-pair-artery">▶ ${a}</div>`).join('');
+  let pairs='';
+  if(c.type==='muscle'){
+    const arts=c.arteries||[];const nervs=c.nerves||[];
+    const multi=arts.length>1;
+    const BS='<span style="font-size:7px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:3px;padding:0 3px;margin-left:3px;font-weight:700">';
+    // 動脈：各自標 (1)(2)
+    arts.forEach((a,ai)=>{
+      const badge=multi?BS+'('+(ai+1)+')</span>':'';
+      pairs+=`<div class="c-pair-item c-pair-artery">▶ ${a}${badge}</div>`;
+    });
+    // 神經：找出每個神經出現在哪些配對中，合併標注
+    const nerveMap={};
+    arts.forEach((a,ai)=>{const nv=nervs[ai]||nervs[0]||'';if(nv){if(!nerveMap[nv])nerveMap[nv]=[];nerveMap[nv].push(ai+1);}});
+    Object.entries(nerveMap).forEach(([nv,idxs])=>{
+      const badge=multi?idxs.map(x=>BS+'('+x+')</span>').join(''):'';
+      pairs+=`<div class="c-pair-item c-pair-nerve">▶ ${nv}${badge}</div>`;
+    });
+  }else if(c.type==='artery'){const aMuscles=c.muscles||[];const aNerves=c.nerves||[];const aMulti=aMuscles.length>1;pairs=aMuscles.map((m,mi)=>{const badge=aMulti?`<span style="font-size:7px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:3px;padding:0 3px;margin-left:3px;font-weight:700">(${mi+1})</span>`:'';return`<div class="c-pair-item c-pair-muscle">▶ ${m}${badge}</div>`;}).join('')+aNerves.map((n,ni)=>{const badge=aMulti?`<span style="font-size:7px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:3px;padding:0 3px;margin-left:3px;font-weight:700">(${ni+1})</span>`:'';return`<div class="c-pair-item c-pair-nerve">▶ ${n}${badge}</div>`;}).join('');}
+  else{const nMuscles=c.muscles||[];const nArteries=c.arteries||[];const nMulti=nMuscles.length>1;pairs=nMuscles.map((m,mi)=>{const badge=nMulti?`<span style="font-size:7px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:3px;padding:0 3px;margin-left:3px;font-weight:700">(${mi+1})</span>`:'';return`<div class="c-pair-item c-pair-muscle">▶ ${m}${badge}</div>`;}).join('')+nArteries.map((a,ai)=>{const badge=nMulti?`<span style="font-size:7px;background:rgba(255,215,0,.15);color:var(--accent-yellow);border-radius:3px;padding:0 3px;margin-left:3px;font-weight:700">(${ai+1})</span>`:'';return`<div class="c-pair-item c-pair-artery">▶ ${a}${badge}</div>`;}).join('');}
   const ca=dis?'':` onclick="toggleSel(${idx})"`;
-  return`<div class="card ${tc}${isSel?' sel':''}${dis?' disabled':''}${isGl?' glow':''}${isNew?' new-card':''}"${ca}><div class="c-zh">${c.zh}</div><div class="c-en">${c.en}</div><div class="c-loc">${c.loc}</div><div class="c-type">${tn(c)}</div><div class="c-divider"></div><div class="c-pairs-label">完美重建配對</div>${pairs}<div class="c-remain">剩餘 ×${rem}／${TOTAL[c.zh]||3}</div></div>`;
+  const isGold=G._trainingGoldHighlight&&c.zh===G._trainingGoldHighlight;
+  return`<div class="card ${tc}${isSel?' sel':''}${dis?' disabled':''}${isGl?' glow':''}${isNew?' new-card':''}${isGold?' gold-highlight':''}"${ca}><div class="c-zh">${c.zh}</div><div class="c-en">${c.en?c.en.charAt(0).toUpperCase()+c.en.slice(1):''}</div><div class="c-loc">${c.loc}</div><div class="c-type">${tn(c)}</div><div class="c-divider"></div><div class="c-pairs-label">完美重建配對</div>${pairs}<div class="c-remain">剩餘 ×${rem}／${TOTAL[c.zh]||3}</div></div>`;
 }
 function mMini(c,idx,selSet,fn,ec){
   if(c.isEvent){return`<div class="mini-card mini-event" style="cursor:default"><div style="font-size:11px;font-weight:600;color:var(--accent-yellow)">${c.icon||'⚡'} ${c.zh}</div><div style="font-size:8px;color:var(--text-ter)">事件效果</div></div>`;}
@@ -850,7 +1308,7 @@ function render(){
   const cp=G.players[G.currentPlayer];
   document.getElementById('gRound').textContent=G.round;document.getElementById('gDeck').textContent=G.deck.length;
   document.getElementById('gTurnLabel').textContent=cp.isAI?cp.name+' 思考中…':cp.name;
-  const phM={draw:{cls:'phase-draw',t:'抽牌'},action:{cls:'phase-action',t:'行動'},must_discard:{cls:'phase-discard',t:'必須棄牌'},must_endturn:{cls:'phase-end',t:'結束回合'},final:{cls:'phase-final',t:'⚠ 最後回合'},gw_flip:{cls:'phase-action',t:'公衛師翻牌'},ai_daai:{cls:'phase-action',t:'大愛捐贈（AI）'},daai_broadcast:{cls:'phase-action',t:'❤️ 大愛捐贈廣播'},yifang_human:{cls:'phase-action',t:'🔬 醫放師徵收'}};
+  const phM={draw:{cls:'phase-draw',t:'抽牌'},action:{cls:'phase-action',t:'行動'},must_discard:{cls:'phase-discard',t:'必須棄牌'},must_endturn:{cls:'phase-end',t:'結束回合'},final:{cls:'phase-final',t:'⚠ 最後回合'},gw_flip:{cls:'phase-action',t:'公衛師翻牌'},ai_daai:{cls:'phase-action',t:'大愛捐贈（AI）'},daai_broadcast:{cls:'phase-action',t:'❤️ 大愛捐贈廣播'},yifang_human:{cls:'phase-action',t:'🔬 醫放師徵收'},training_pause:{cls:'phase-draw',t:'🩺 觀察手牌'},training_pause_newcard:{cls:'phase-action',t:'🩺 新進牌閃光中'}};
   const ph=phM[G.phase]||phM.draw;const phEl=document.getElementById('gPhase');phEl.className='g-phase '+ph.cls;phEl.textContent=ph.t;
   // 統一玩家欄位：含即時排名
   const sortedByScore=[...G.players].sort((a,b)=>b.score-a.score);
@@ -866,7 +1324,30 @@ function render(){
     return`<div class="pchip${isActive?' active':''}"><div class="pchip-avatar" style="background:${a.bg}">${a.e}</div><div class="pchip-info-col"><div class="pchip-name"><span style="font-size:11px;margin-right:3px">${rankLabel}</span>${p.name}${p.isAI?' 🤖':''}<span style="font-size:8.5px;opacity:.45"> [${p.role.name}]</span></div><div class="pchip-score">${p.score}分 | ${p.hand.length}張</div>${sets||badges?`<div class="pchip-badges">${sets}${badges}</div>`:''} ${disc?`<div style="font-size:9px;color:var(--text-ter);margin-top:2px">棄：${disc}</div>`:''}</div></div>`;
   }).join('');
   // Active event cards display
-  const aec=document.getElementById('activeEventBar');
+  // 訓練模式：隱藏事件欄，顯示新手提示
+  if(G._trainingMode){
+    const aec2=document.getElementById('activeEventBar');
+    if(aec2){
+    aec2.style.display='block';aec2.style.borderColor='rgba(255,255,255,.3)';
+    // Compute best match suggestion for human player
+    const _human=G.players.find(p=>!p.isAI);
+    let _bestSuggest='（尚無可配對組合）';
+    if(_human){
+      const _h=_human._s||_human.hand;let _best=null,_bc=null;
+      for(let _i=0;_i<_h.length-2;_i++)for(let _j=_i+1;_j<_h.length-1;_j++)for(let _k=_j+1;_k<_h.length;_k++){
+        const _trio=[_h[_i],_h[_j],_h[_k]];if(new Set(_trio).size!==3)continue;
+        const _r=checkMatch(_trio);if(_r&&(!_best||_r.pts>_best.pts)){_best=_r;_bc=_trio;}
+      }
+      if(_best&&_bc)_bestSuggest='<span style="color:var(--accent-yellow);font-weight:700">'
+        +_bc.map(c=>c.zh).join('＋')+'</span>　→　'+_best.name
+        +'　<span style="color:var(--accent-green)">+'+_best.pts+'分</span>';
+    }
+    aec2.innerHTML='<div style="font-size:12px;font-weight:700;color:#fff">🩺 新手訓練模式</div>'
+      +'<div style="font-size:11px;color:var(--text-sec);margin-top:3px">完美重建 35分・黃金治療 35分（三張同名）・區域復健 20分（兩張同名+1同色）・基礎治療 10分（3張同色）</div>'
+      +'<div style="font-size:11px;margin-top:5px;padding-top:5px;border-top:0.5px solid rgba(255,255,255,.15)">🤖 建議配對：'+_bestSuggest+'</div>';
+  }
+  }
+  const aec=G._trainingMode?null:document.getElementById('activeEventBar');
   if(aec){
     const evts=G._activeEventCards||[];
     const totalTriggered=G._eventTotalTriggered||0;
@@ -881,30 +1362,41 @@ function render(){
   else renderDaaiBroadcastBar();
   if(G.phase!=='yifang_human')document.getElementById('yifangHumanBar').style.display='none';
   else renderYifangHumanBar();
-  const isMe=!cp.isAI;const noSel=!isMe||G.phase==='must_endturn'||G.phase==='draw'||G.phase==='gw_flip'||G.phase==='ai_daai'||G.phase==='daai_broadcast';
+  const isMe=!cp.isAI;const noSel=!isMe||G.phase==='must_endturn'||G.phase==='draw'||G.phase==='gw_flip'||G.phase==='ai_daai'||G.phase==='daai_broadcast'||(G._trainingMode&&(G.phase==='training_pause'||G.phase==='training_pause_newcard'));
   const hg=document.getElementById('handGrid');
   if(cp.isAI){document.getElementById('handTitle').textContent=cp.name+' 的手牌（背面）';document.getElementById('handHint').textContent='';hg.innerHTML=Array.from({length:cp.hand.length},()=>`<div class="card-back">🂠</div>`).join('');}
-  else{document.getElementById('handTitle').textContent=cp.name+' 的手牌（'+cp.hand.length+'張）';const hints={draw:'請先抽牌',action:'點擊選取，最多3張',must_discard:(cp.role.name==='公衛師'&&cp._gwMustDiscard>0?'棄至手牌剩9張（需棄'+dcnt(cp)+'張）':'選牌後按棄牌（需棄'+dcnt(cp)+'張）'),must_endturn:'請按結束回合',final:'最後回合：配對、技能或Pass',gw_flip:'請在上方欄位選1張手牌翻出',ai_daai:'請在上方欄位選2張手牌配對'};document.getElementById('handHint').textContent=hints[G.phase]||'';const sorted=sortHand(cp.hand);cp._s=sorted;const gs=noSel?new Set():glowSet(sorted);const newSet=G._newCards||new Set();hg.innerHTML=sorted.map((c,i)=>mCard(c,i,noSel,gs,newSet.has(c))).join('');if(newSet.size>0)setTimeout(()=>{G._newCards=new Set();render();},3100);}
+  else{document.getElementById('handTitle').textContent=cp.name+' 的手牌（'+cp.hand.length+'張）';const hints={draw:'請先抽牌',action:'點擊選取，最多3張',must_discard:(cp.role.name==='公衛師'&&cp._gwMustDiscard>0?'徵收了'+cp._gwMustDiscard+'張，請棄'+dcnt(cp)+'張':'選牌後按棄牌（需棄'+dcnt(cp)+'張）'),must_endturn:'請按結束回合',final:'最後回合：配對、技能或Pass',gw_flip:'請在上方欄位選1張手牌翻出',ai_daai:'請在上方欄位選2張手牌配對',training_pause:'👆 請先閱讀右側通知',training_pause_newcard:'🟡 新進牌閃光中，請閱讀右側通知'};document.getElementById('handHint').textContent=hints[G.phase]||'';const sorted=sortHand(cp.hand);cp._s=sorted;const gs=noSel?new Set():glowSet(sorted);const newSet=G._newCards||new Set();hg.innerHTML=sorted.map((c,i)=>mCard(c,i,noSel,gs,newSet.has(c))).join('');if(newSet.size>0)setTimeout(()=>{G._newCards=new Set();render();},3100);}
   // activeEventBar already updated above
   document.getElementById('selInfo').textContent=(isMe&&G.selected.length&&cp._s)?'已選：'+G.selected.map(i=>cp._s[i]?.zh||'').filter(Boolean).join('、'):'';
   renderBtns(cp,isMe);
 }
 function renderBtns(cp,isMe){
   const el=document.getElementById('actBtns');if(!isMe){el.innerHTML='';return;}
+  // 訓練模式：簡化按鈕
+  if(G._trainingMode){
+    const ph=G.phase,sc=G.selected.length,btns=[];
+    if(ph==='training_pause'||ph==='training_pause_newcard'){el.innerHTML='<div style="font-size:12px;color:var(--text-sec);padding:6px 0">請先確認上方通知 ↑</div>';return;}
+    if(ph==='draw')btns.push({l:'抽1張牌',cls:'primary',fn:'doTrainingDraw()',dis:!G.deck.length});
+    if(ph==='action'){btns.push({l:'配對（需選3張）',cls:'success',fn:'doMatch()',dis:sc!==3});btns.push({l:'棄牌（選1張）',cls:'danger',fn:'doDiscard()',dis:sc===0});}
+    if(ph==='must_discard')btns.push({l:cp.role.name==='公衛師'&&cp._gwMustDiscard>0?'棄'+dcnt(cp)+'張（徵收補位，已選'+sc+'張）':'棄1張（已選'+sc+'張）',cls:'danger',fn:'doDiscard()',dis:sc!==dcnt(cp)});
+    if(ph==='must_endturn')btns.push({l:'結束回合',cls:'primary',fn:'doEndTurn()'});
+    if(ph==='final'){btns.push({l:'配對（需選3張）',cls:'success',fn:'doMatch()',dis:sc!==3});btns.push({l:'⏭ Pass',cls:'pass',fn:'doPass()'});}
+    el.innerHTML=btns.map(b=>`<button class="abtn ${b.cls||''}" onclick="${b.fn}"${b.dis?' disabled':''}>${b.l}</button>`).join('');return;
+  }
   // 解剖教授等待期間鎖定所有動作
   if(G._profWaiting){el.innerHTML=`<div style="font-size:12px;color:var(--accent-yellow);padding:8px 0">⏳ 等待解剖教授反應中，請稍候…</div>`;return;}
   const ph=G.phase,sc=G.selected.length,btns=[],ca=skillOK(cp),sl=skillLbl(cp),nd=dcnt(cp);
   const showSB=!NO_SKILL_BTN.includes(cp.role.name);const isDaai=cp.role.name==='大愛捐贈';const isProf=cp.role.name==='解剖教授';
   if(ph==='gw_flip'||ph==='ai_daai'||ph==='daai_broadcast'||ph==='yifang_human'){el.innerHTML='';return;}
   if(ph==='final'){btns.push({l:'配對（需選3張）',cls:'success',fn:'doMatch()',dis:sc!==3});if(showSB&&!isProf)btns.push({l:sl,cls:ca?'warn':'locked',fn:ca?'doSkill()':'void(0)'});btns.push({l:'⏭ Pass',cls:'pass',fn:'doPass()'});el.innerHTML=btns.map(b=>`<button class="abtn ${b.cls||''}" onclick="${b.fn}"${b.dis?' disabled':''}>${b.l}</button>`).join('');return;}
-  if(ph==='draw'){if(cp.role.name==='醫檢師')btns.push({l:isBlocked(cp)?'抽1張（封鎖中）':'抽3張選1',cls:'primary',fn:'doInspDrawOrNormal()',dis:!G.deck.length});else if(cp.role.name==='公衛師'){btns.push({l:'抽1張牌',cls:'primary',fn:'doDraw()',dis:!G.deck.length});btns.push({l:ca?'發動公衛師技能':sl,cls:ca?'warn':'locked',fn:ca?'doGwOpen()':'void(0)'});}else{btns.push({l:cp.role.name==='外科醫師'?'抽2張':'抽1張',cls:'primary',fn:'doDraw()',dis:!G.deck.length});if(showSB&&!isProf)btns.push({l:sl,cls:ca?'warn':'locked',fn:ca?'doSkill()':'void(0)'});if(isDaai)btns.push({l:skillOK(cp)?'大愛捐贈技能':'⏳ 大愛捐贈（行動環節使用）',cls:'locked',fn:'void(0)'});}}
+  if(ph==='draw'){if(cp.role.name==='醫檢師')btns.push({l:isBlocked(cp)?'抽1張（封鎖中）':'抽3張選1',cls:'primary',fn:'doInspDrawOrNormal()',dis:!G.deck.length});else if(cp.role.name==='公衛師'){const gwDrawDone=cp.drawnThisTurn;const gwSkilledDone=cp.skillUsedThisTurn;btns.push({l:'抽1張牌',cls:'primary',fn:'doDraw()',dis:!G.deck.length||gwDrawDone||gwSkilledDone});btns.push({l:gwDrawDone?'🚫 已抽牌，不可發動技能':(ca?'發動公衛師技能':sl),cls:(gwDrawDone||!ca)?'locked':'warn',fn:(!gwDrawDone&&ca)?'doGwOpen()':'void(0)'});}else{btns.push({l:cp.role.name==='外科醫師'?'抽2張':'抽1張',cls:'primary',fn:'doDraw()',dis:!G.deck.length});if(showSB&&!isProf)btns.push({l:sl,cls:ca?'warn':'locked',fn:ca?'doSkill()':'void(0)'});if(isDaai)btns.push({l:skillOK(cp)?'大愛捐贈技能':'⏳ 大愛捐贈（行動環節使用）',cls:'locked',fn:'void(0)'});}}
   // 護理師額外：must_discard 顯示再次配對（已有）；draw phase 也顯示技能狀態
-  if(ph==='action'){btns.push({l:'配對（需選3張）',cls:'success',fn:'doMatch()',dis:sc!==3});if(!isDaai||!skillOK(cp))btns.push({l:'棄牌（選1張）',cls:'danger',fn:'doDiscard()',dis:sc===0});if(showSB&&!isProf&&!isDaai)btns.push({l:sl,cls:ca?'warn':'locked',fn:ca?'doSkill()':'void(0)'});if(isDaai)btns.push({l:ca?'大愛捐贈技能':sl,cls:ca?'warn':'locked',fn:ca?'doSkill()':'void(0)'});}
-  if(ph==='must_discard'){btns.push({l:`棄${nd}張（已選${sc}張）`,cls:'danger',fn:'doDiscard()',dis:sc!==nd});if(cp.role.name==='護理師'&&ca)btns.push({l:'護理師：再次配對',cls:'warn',fn:'doNurseSkill()'});}
+  if(ph==='action'){btns.push({l:'配對（需選3張）',cls:'success',fn:'doMatch()',dis:sc!==3});if(!isDaai||!skillOK(cp))btns.push({l:'棄牌（選1張）',cls:'danger',fn:'doDiscard()',dis:sc===0});const isGw=cp.role.name==='公衛師';if(showSB&&!isProf&&!isDaai&&!isGw)btns.push({l:sl,cls:ca?'warn':'locked',fn:ca?'doSkill()':'void(0)'});if(isGw&&!cp.skillUsedThisTurn)btns.push({l:'🌡️ 公衛師技能（須在抽牌階段發動）',cls:'locked',fn:'void(0)'});if(isDaai)btns.push({l:ca?'大愛捐贈技能':sl,cls:ca?'warn':'locked',fn:ca?'doSkill()':'void(0)'});}
+  if(ph==='must_discard'){const _gwLbl=cp.role.name==='公衛師'&&cp._gwMustDiscard>0?`棄${nd}張（徵收補位，已選${sc}張）`:`棄${nd}張（已選${sc}張）`;btns.push({l:_gwLbl,cls:'danger',fn:'doDiscard()',dis:sc!==nd});if(cp.role.name==='護理師'&&ca)btns.push({l:'護理師：再次配對',cls:'warn',fn:'doNurseSkill()'});}
   if(ph==='must_endturn')btns.push({l:'結束回合',cls:'primary',fn:'doEndTurn()'});
   el.innerHTML=btns.map(b=>`<button class="abtn ${b.cls||''}" onclick="${b.fn}"${b.dis?' disabled':''}>${b.l}</button>`).join('');
 }
-function toggleSel(i){if(G._profWaiting||G.phase==="draw"||G.phase==="must_endturn"||G.phase==="gw_flip"||G.phase==="ai_daai"||G.phase==="daai_broadcast"||G.phase==="yifang_human")return;const idx=G.selected.indexOf(i);const maxSel=(G.phase==="must_discard"&&G.players[G.currentPlayer].role.name==="公衛師")?dcnt(G.players[G.currentPlayer]):3;if(idx>=0)G.selected.splice(idx,1);else if(G.selected.length<maxSel)G.selected.push(i);render();}
+function toggleSel(i){if(G._profWaiting||G.phase==="draw"||G.phase==="must_endturn"||G.phase==="gw_flip"||G.phase==="ai_daai"||G.phase==="daai_broadcast"||G.phase==="yifang_human"||G.phase==="training_pause"||G.phase==="training_pause_newcard")return;const idx=G.selected.indexOf(i);const maxSel=(G.phase==="must_discard"&&G.players[G.currentPlayer].role.name==="公衛師")?dcnt(G.players[G.currentPlayer]):3;if(idx>=0)G.selected.splice(idx,1);else if(G.selected.length<maxSel)G.selected.push(i);render();}
 
 // ── GAME INIT section ends; doDraw section ────────────
 function handleEventCard(card,drawer){
@@ -982,6 +1474,15 @@ function handleEventCard(card,drawer){
   openModal('⚡ 事件效果！【'+card.zh+' '+card.icon+'】',modalBody,`<button class="abtn" onclick="closeModal()">了解</button>`);
   return true;
 }
+function doTrainingDraw(){
+  if(G.phase!=='draw')return;const cp=G.players[G.currentPlayer];
+  if(!G.deck.length)return;const c=G.deck.pop();
+  if(!c.isEvent){cp.hand.push(c);addNew(cp,[c]);}
+  cp.drawnThisTurn=true;cp._s=sortHand(cp.hand);
+  log(cp.name+' 抽了1張牌');
+  if(!G.deck.length&&!G.finalRound){triggerFinal();return;}
+  G.phase='action';G.selected=[];render();
+}
 function doDraw(){if(G.phase!=='draw')return;const cp=G.players[G.currentPlayer];const n=drawCount(cp);const drawn=[];for(let i=0;i<n;i++)if(G.deck.length)drawn.push(G.deck.pop());
   // 先分開事件牌和普通牌，事件牌不加入手牌
   const evts=drawn.filter(c=>c.isEvent);const normals=drawn.filter(c=>!c.isEvent);
@@ -1020,8 +1521,17 @@ function doMatch(){if(G._profWaiting)return;const cp=G.players[G.currentPlayer];
   cards.forEach(card=>{const idx=cp.hand.findIndex(x=>x===card);if(idx>=0)cp.hand.splice(idx,1);});
   if(!G.finalRound){drawSafe(cp,3);}
   cp._s=sortHand(cp.hand);G.selected=[];log(applyM(cp,cards,result),'ok');
+  // Training mode tStep===2: only allow perfect match, block others
+  if(G._trainingMode&&G._tStep===2){
+    if(result.mt!=='perfect'){
+      openModal('請先配對完美重建','現在請選取手牌中發白色螢光的 3 張牌（肌肉＋動脈＋神經）進行配對！','<button class="abtn" onclick="closeModal()">了解</button>');
+      // put cards back
+      cards.forEach(card=>{const already=cp.hand.findIndex(x=>x===card);if(already<0)cp.hand.push(card);});
+      G.selected=[];cp._s=sortHand(cp.hand);render();return;
+    }
+    G._tStep=3;_trainingAfterMatch();return;
+  }
   if(G.finalRound){
-    // 最後回合：配對1次後直接推進到下一玩家（不重置passed，讓他們之後還能Pass）
     G.selected=[];render();
     setTimeout(()=>advFinal(),400);
     return;
@@ -1051,6 +1561,25 @@ function doDiscard(){
   else if(G.phase==='action')G.phase='must_endturn';
   triggerProfBar();
   render();
+  // Training mode tStep===4: highlight gold cards + toast, then prompt end turn
+  if(G._trainingMode&&G._tStep===4){
+    G._tStep=5;
+    // Find golden treatment group (3+ same name) in player hand
+    const cpD=G.players[G.currentPlayer];
+    const nameCntD={};(cpD._s||cpD.hand).forEach(c=>nameCntD[c.zh]=(nameCntD[c.zh]||0)+1);
+    const goldNameD=Object.entries(nameCntD).find(([,v])=>v>=2)?.[0];
+    G._trainingGoldHighlight=goldNameD||null;
+    render(); // re-render to apply purple highlight
+    setTimeout(()=>{
+      const hint=goldNameD?'手牌中標示紫框的「'+goldNameD+'」請保留，下回合可以湊大牌！':'請保留手牌中相同名稱的牌，下回合可以湊大牌！';
+      showToast('💜 保留這幾張牌吧！',hint+'<br><br>棄其他牌比較好。',null,function(){
+        G._trainingGoldHighlight=null;render();
+        setTimeout(()=>{
+          showToast('✅ 請按「結束回合」','棄牌完成！按「結束回合」把行動交給下一位玩家。',null,null);
+        },200);
+      });
+    },300);
+  }
 }
 
 // ── SKILLS ────────────────────────────────────────────
@@ -1168,7 +1697,7 @@ function renderGwFlipBar(){
       // Only the current turn player (humanTurn) can select; others see "waiting"
       if(p===humanTurn){
         const ps=sortHand(p.hand);p._s=ps;
-        cardHtml=`<div style="font-size:11px;color:var(--text-sec);margin-bottom:4px">選1張翻出：</div><div style="display:flex;flex-wrap:wrap;gap:4px">${ps.slice(0,8).map((c)=>{const col=c.type==='muscle'?'var(--muscle-col)':c.type==='artery'?'var(--artery-col)':'var(--nerve-col)';const isC=f?.card===c;return`<div class="mini-card mini-${c.type}${isC?' sel':''}" onclick="pickGwHumanFlip('${p.name}',${ps.indexOf(c)})"><div style="font-size:11px;font-weight:600;color:${col}">${c.zh}</div><div style="font-size:7.5px;color:var(--text-ter)">${c.loc}・${tn(c)}</div></div>`;}).join('')}</div>`;
+        cardHtml=`<div style="font-size:11px;color:var(--text-sec);margin-bottom:4px">選1張翻出：</div><div style="display:flex;flex-wrap:wrap;gap:4px;max-height:none">${ps.map((c)=>{const col=c.type==='muscle'?'var(--muscle-col)':c.type==='artery'?'var(--artery-col)':'var(--nerve-col)';const isC=f?.card===c;return`<div class="mini-card mini-${c.type}${isC?' sel':''}" onclick="pickGwHumanFlip('${p.name}',${ps.indexOf(c)})"><div style="font-size:11px;font-weight:600;color:${col}">${c.zh}</div><div style="font-size:7.5px;color:var(--text-ter)">${c.loc}・${tn(c)}</div></div>`;}).join('')}</div>`;
       }else{
         // Different human player — only show whether chosen or not
         cardHtml=`<div style="font-size:11px;color:var(--text-ter)">等待選牌…</div>`;
@@ -1177,7 +1706,15 @@ function renderGwFlipBar(){
     const canConfirm=p===humanTurn&&!p.isAI&&p.hand.length>0&&!f?.chosen&&f?.card;
     return`<div class="gw-player-col"><div class="gw-player-name">${avH(p.role.name,20,10)} ${p.name}${p===st.gwPlayer?' (公衛師)':''}${p.isAI?' 🤖':''}</div><div>${cardHtml}</div>${canConfirm?`<button class="abtn success" style="margin-top:5px;font-size:11px;padding:5px 10px" onclick="confirmGwHumanPick('${p.name}')">確認翻出</button>`:''}</div>`;
   });
-  document.getElementById('gwPlayerCols').innerHTML=cols.join('');
+  // Separate human-picker col from others (so player col gets full width)
+  const humanPlayer=G.players.find(p=>!p.isAI);
+  const humanName=humanPlayer?humanPlayer.name:'';
+  const humanColIdx=G.players.findIndex(p=>!p.isAI);
+  const humanCol=humanColIdx>=0?cols[humanColIdx]:'';
+  const otherCols=cols.filter((_,i)=>i!==humanColIdx);
+  document.getElementById('gwPlayerCols').innerHTML=
+    (humanCol?humanCol+'':'')+
+    (otherCols.length?`<div class="gw-others-row">${otherCols.join('')}</div>`:'');
   // allChosen: all players with cards (human or AI) must have chosen
   const allChosen=G.players.filter(p=>p.hand.length>0).every(p=>st.flipped[p.name]?.chosen);
   // Also need myCard set (gw player must have confirmed their pick)
@@ -1288,7 +1825,7 @@ function triggerDaaiBroadcast(caster,thrownCard,afterCb){
       respondents[p.name]={player:p,isAI:false,decided:false,want:false,matchCards:null,matchResult:null,selectedIdxs:[]};
     }
   });
-  G._daaibroadcast={caster,thrownCard,respondents,phase:'waiting',winner:null,afterCb:afterCb||null};
+  G._daaibroadcast={caster,thrownCard,respondents,phase:'waiting',winner:null,afterCb:afterCb||null,isRetry:!!(G._daaiIsRetry)}; G._daaiIsRetry=false;
   G.phase='daai_broadcast';
   if(_daaibroadcastTimer){clearInterval(_daaibroadcastTimer);_daaibroadcastTimer=null;}
   G._daaibroadcastCD=0;
@@ -1342,6 +1879,34 @@ function daaiCasterReject(){
   log(st.caster.name+'（大愛捐贈）收回 '+st.thrownCard.zh+' — 可再丟一張','warn');
   finishDaaiBroadcast(false);
 }
+function daaiCasterRetry(){
+  // 收回丟出的牌，重新進入選牌畫面（標記為第二次，下次不再提供重試）
+  clearInterval(_daaibroadcastTimer);_daaibroadcastTimer=null;
+  const st=G._daaibroadcast;if(!st)return;
+  const caster=st.caster;
+  // 把牌放回手牌
+  caster.hand.push(st.thrownCard);caster._s=sortHand(caster.hand);
+  log(caster.name+'（大愛捐贈）收回牌，重新選擇','warn');
+  G._daaibroadcast=null;
+  document.getElementById('daaibroadcastBar').style.display='none';
+  // 標記下次為 retry（不再提供重選）
+  G._daaiIsRetry=true;
+  G.phase='action';render();
+  // 重開選牌 overlay
+  openDaai();
+}
+function daaiCasterDiscard(){
+  // 第二次選牌後：把丟出的牌真正棄掉，進入結束回合
+  clearInterval(_daaibroadcastTimer);_daaibroadcastTimer=null;
+  const st=G._daaibroadcast;if(!st)return;
+  const caster=st.caster;
+  G.discard.push(st.thrownCard);caster.discarded.push(st.thrownCard);
+  log(caster.name+'（大愛捐贈）棄牌 '+st.thrownCard.zh,'');
+  caster._daaiDiscardCount=0;
+  G._daaibroadcast=null;G._daaiIsRetry=false;
+  document.getElementById('daaibroadcastBar').style.display='none';
+  G.phase='must_endturn';render();
+}
 function finishDaaiBroadcast(matched){
   const st=G._daaibroadcast;
   const caster=st?st.caster:G.players[G.currentPlayer];
@@ -1354,16 +1919,9 @@ function finishDaaiBroadcast(matched){
     if(afterCb)setTimeout(afterCb,200);
     return;
   }
-  // 人類 caster: 失敗才提供第二次
-  if(!matched){
-    const discLeft=2-(caster._daaiDiscardCount||0);
-    if(discLeft>0&&caster.hand.length>0){
-      G.phase='action';render();
-      openModal('大愛捐贈','還可以再丟1張牌（'+discLeft+'次機會），或直接結束回合。',`<button class="abtn warn" onclick="closeModal();openDaai()">再丟1張</button><button class="abtn" onclick="closeModal();doEndTurnDaai()">結束回合</button>`);
-      return;
-    }
-  }
-  caster._daaiDiscardCount=0;G.phase='must_endturn';render();
+  // 大愛捐贈：執行完技能後（不論成功失敗）直接結束回合，不需棄牌
+  caster._daaiDiscardCount=0;
+  G.phase='must_endturn';render();
 }
 function renderDaaiBroadcastBar(){
   const st=G._daaibroadcast;if(!st)return;
@@ -1393,7 +1951,11 @@ function renderDaaiBroadcastBar(){
     }).join('');
     document.getElementById('daaibroadcastCols').innerHTML=`<div class="gw-player-col" style="min-width:100px"><div class="gw-player-name" style="color:var(--accent-green)">❤️ 丟出的牌</div>${thrownHtml}</div>`+cols;
     const allDone=Object.values(st.respondents).every(r=>r.decided);
-    document.getElementById('daaibroadcastBtns').innerHTML=allDone?`<button class="abtn success" onclick="advanceToCasterDecision()">所有人已決定，進入結算</button>`:'';
+    if(allDone){
+      let waitBtns=`<button class="abtn success" onclick="advanceToCasterDecision()">所有人已決定，進入結算</button>`;
+      if(!st.isRetry)waitBtns+=` <button class="abtn warn" onclick="daaiCasterRetry()">重新選擇棄牌</button>`;
+      document.getElementById('daaibroadcastBtns').innerHTML=waitBtns;
+    }else{document.getElementById('daaibroadcastBtns').innerHTML='';}
   }else if(st.phase==='caster_decide'){
     document.getElementById('daaibroadcastCaster').textContent=st.caster.name+'，請決定是否給出牌';
     const descEl=document.getElementById('daaibroadcastDesc');if(descEl)descEl.textContent='請選擇給出或收回。';
@@ -1401,7 +1963,17 @@ function renderDaaiBroadcastBar(){
     if(st.winner){const r=st.winner;winnerInfo=`<div style="color:var(--accent-green);font-size:13px;font-weight:600;margin:8px 0">🏆 ${r.player.name} 搶牌！${r.matchResult.name}（${r.matchResult.pts}+15分）</div><div style="font-size:11px;color:var(--text-sec)">對方手牌: ${r.matchCards.map(c=>c.zh).join('＋')}</div>`;}
     else{winnerInfo=`<div style="font-size:13px;color:var(--text-ter);margin:8px 0">沒有人想要這張牌</div>`;}
     document.getElementById('daaibroadcastCols').innerHTML=`<div style="width:100%"><div style="font-size:12px;color:var(--text-sec);margin-bottom:8px">${st.caster.name} 丟出：</div>${thrownHtml}${winnerInfo}</div>`;
-    document.getElementById('daaibroadcastBtns').innerHTML=st.winner?`<button class="abtn success" onclick="daaiCasterAccept()">✓ 給出牌（${st.winner.player.name}配對得分）</button><button class="abtn danger" onclick="daaiCasterReject()">✕ 收回手牌</button>`:`<button class="abtn" onclick="daaiCasterReject()">收回手牌（無人想要）</button>`;
+    if(st.winner){
+      const secondBtn=st.isRetry
+        ?`<button class="abtn danger" onclick="daaiCasterDiscard()">棄牌（結束回合）</button>`
+        :`<button class="abtn warn" onclick="daaiCasterRetry()">重新選擇棄牌</button>`;
+      document.getElementById('daaibroadcastBtns').innerHTML=`<button class="abtn success" onclick="daaiCasterAccept()">✓ 給出牌（${st.winner.player.name}配對得分）</button>${secondBtn}`;
+    }else{
+      const noWinBtn=st.isRetry
+        ?`<button class="abtn danger" onclick="daaiCasterDiscard()">棄牌（結束回合）</button>`
+        :`<button class="abtn warn" onclick="daaiCasterRetry()">重新選擇棄牌</button>`;
+      document.getElementById('daaibroadcastBtns').innerHTML=noWinBtn;
+    }
   }
 }
 function daaibroadcastPickCard(pname,idx){
@@ -1504,7 +2076,7 @@ function skipMalpracticePlayer(){
   startTurnCD(np);
   if(!G.deck.length&&!G.finalRound){triggerFinal();return;}
   if(np._skipNextTurn){np._skipNextTurn=false;log(np.name+' 也因醫療糾紛被跳過！','warn');setTimeout(skipMalpracticePlayer,300);return;}
-  render();if(np.isAI)setTimeout(aiTurn,rndD());else log('▶ 換到 '+np.name,'hl');
+  render();if(np.isAI)setTimeout(G._trainingMode?aiTrainingTurn:aiTurn,rndD());else log('▶ 換到 '+np.name,'hl');
 }
 function doEndTurn(){if(G.phase==='must_discard'){openModal('還需棄牌','配對後必須棄牌才能結束回合','<button class="abtn" onclick="closeModal()">了解</button>');return;}
   const cp=G.players[G.currentPlayer];endTurnCD(cp);G.selected=[];cp._gwCollected=0;G._profSelIdx=-1;log(cp.name+' 結束回合');
@@ -1527,7 +2099,7 @@ function doEndTurn(){if(G.phase==='must_discard'){openModal('還需棄牌','配�
     }
     return;
   }
-  render();if(np.isAI)setTimeout(aiTurn,rndD());else log('▶ 換到 '+np.name,'hl');
+  render();if(np.isAI)setTimeout(G._trainingMode?aiTrainingTurn:aiTurn,rndD());else log('▶ 換到 '+np.name,'hl');
 }
 
 // ── AI TURN ───────────────────────────────────────────
@@ -1540,17 +2112,20 @@ function aiTurn(){
     log(ai.name+' 因醫療糾紛被跳過！','warn');
     endTurnCD(ai);const nextAI=(G.currentPlayer+1)%G.players.length;if(nextAI===0){G.round++;tickEventEffects();}
     G.currentPlayer=nextAI;G.phase='draw';startTurnCD(G.players[G.currentPlayer]);render();
-    if(G.players[G.currentPlayer].isAI)setTimeout(aiTurn,rndD());else log('▶ 換到 '+G.players[G.currentPlayer].name,'hl');return;
+    if(G.players[G.currentPlayer].isAI)setTimeout(G._trainingMode?aiTrainingTurn:aiTurn,rndD());else log('▶ 換到 '+G.players[G.currentPlayer].name,'hl');return;
   }
   const n=ai.role.name==='外科醫師'?2:1;const drawn=[];for(let i=0;i<n;i++)if(G.deck.length)drawn.push(G.deck.pop());
   const aiEvts=drawn.filter(c=>c.isEvent);const aiNormals=drawn.filter(c=>!c.isEvent);
   aiNormals.forEach(c=>ai.hand.push(c));
   log(ai.name+' 抽了'+n+'張牌');ai.drawnThisTurn=true;
   aiEvts.forEach(c=>handleEventCard(c,ai));
-  // ★ AI skill 60-70% chance
-  const useSkill=skillOK(ai)&&Math.random()<0.65;
+  // ★ Difficulty-aware skill and accuracy
+  const _diff=G.aiDiff||'normal';
+  const _skillChance=_diff==='easy'?0.45:_diff==='elite'?0.85:0.58;
+  const _matchAcc=_diff==='easy'?(0.40+Math.random()*0.20):_diff==='elite'?(0.80+Math.random()*0.20):(0.50+Math.random()*0.20);
+  const useSkill=skillOK(ai)&&Math.random()<_skillChance;
   const doAfterSkill=()=>{
-    const mistake=Math.random()<0.12;
+    const mistake=Math.random()>_matchAcc;
     if(!mistake){const h=ai.hand;let best=null,bestCards=null;for(let i=0;i<h.length-2;i++)for(let j=i+1;j<h.length-1;j++)for(let k=j+1;k<h.length;k++){const trio=[h[i],h[j],h[k]];if(new Set(trio).size!==3)continue;const r=checkMatch(trio);if(r&&(!best||r.pts>best.pts)){best=r;bestCards=trio;}}
       if(best&&bestCards&&bestCards.every(c=>ai.hand.includes(c))){
         log(applyM(ai,bestCards,best),'ok');
@@ -1572,7 +2147,7 @@ function aiTurn(){
     }
     endTurnCD(ai);if(!G.deck.length&&!G.finalRound){triggerFinal();return;}
     G.selected=[];const nextAI=(G.currentPlayer+1)%G.players.length;if(nextAI===0){G.round++;tickEventEffects();}
-    G.currentPlayer=nextAI;G.phase='draw';startTurnCD(G.players[G.currentPlayer]);render();if(G.players[G.currentPlayer].isAI)setTimeout(aiTurn,rndD());else log('▶ 換到 '+G.players[G.currentPlayer].name,'hl');
+    G.currentPlayer=nextAI;G.phase='draw';startTurnCD(G.players[G.currentPlayer]);render();if(G.players[G.currentPlayer].isAI)setTimeout(G._trainingMode?aiTrainingTurn:aiTurn,rndD());else log('▶ 換到 '+G.players[G.currentPlayer].name,'hl');
   };
   if(useSkill)aiUseSkill(ai,doAfterSkill);else doAfterSkill();
 }
@@ -1644,14 +2219,26 @@ function aiUseSkill(ai,cb){
       log(ai.name+'（護理師）使用再次配對','warn');
     }else cb();
   }else if(rn==='大愛捐贈'){
-    // AI 大愛捐贈：與玩家版相同，廣播給所有人搶牌
-    if(!ai.hand.length){cb();return;}
+    // AI 大愛捐贈：必須先抽牌才能發動，廣播給所有人搶牌
+    if(!ai.drawnThisTurn||!ai.hand.length){cb();return;}
     const aiCard=ai.hand[Math.floor(Math.random()*ai.hand.length)];
     const cidx=ai.hand.findIndex(x=>x===aiCard);if(cidx>=0)ai.hand.splice(cidx,1);
     markSkill();ai._daaiDiscardCount=(ai._daaiDiscardCount||0)+1;
     log(ai.name+'（大愛捐贈）廣播丟出 '+aiCard.zh,'warn');
     showSkillAnim(ai.name,'大愛捐贈','廣播詢問所有人','',()=>{
-      triggerDaaiBroadcast(ai,aiCard,cb);
+      // AI daai: after broadcast, skip match phase and go straight to discard+endTurn
+      const daaiAfterCb=()=>{
+        ai._daaiDiscardCount=0;
+        const nd=ai.role.name==='外科醫師'?2:1;
+        for(let d=0;d<nd&&ai.hand.length;d++){const di=Math.floor(Math.random()*ai.hand.length);G.discard.push(ai.hand[di]);ai.discarded.push(ai.hand[di]);ai.hand.splice(di,1);}
+        log(ai.name+' 棄牌');G._profLastDiscardPlayer=G.currentPlayer;triggerProfBar();
+        endTurnCD(ai);if(!G.deck.length&&!G.finalRound){triggerFinal();return;}
+        G.selected=[];const nextAI=(G.currentPlayer+1)%G.players.length;if(nextAI===0){G.round++;tickEventEffects();}
+        G.currentPlayer=nextAI;G.phase='draw';startTurnCD(G.players[G.currentPlayer]);render();
+        if(G.players[G.currentPlayer].isAI)setTimeout(G._trainingMode?aiTrainingTurn:aiTurn,rndD());
+        else log('▶ 換到 '+G.players[G.currentPlayer].name,'hl');
+      };
+      triggerDaaiBroadcast(ai,aiCard,daaiAfterCb);
     });
   }else if(rn==='公衛師'){
     if(!ai.hand.length){cb();return;}
@@ -1687,7 +2274,7 @@ function aiUseSkill(ai,cb){
 }
 
 
-function endGame(){const s=[...G.players].sort((a,b)=>b.score-a.score);const m=['🥇','🥈','🥉','4th','5th','6th'];document.getElementById('finalPodium').innerHTML=s.map((p,i)=>{const a=AVMAP[p.role.name]||{e:'👤',bg:'rgba(160,160,192,.25)'};return`<div class="podium-row"><div class="p-rank">${m[i]||i+1}</div><div style="width:30px;height:30px;border-radius:50%;background:${a.bg};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-right:8px">${a.e}</div><div class="p-name">${p.name}<span class="p-role"> [${p.role.name}${p.bonusCard?' / '+p.bonusCard.name:''}]</span></div><div class="p-score">${p.score}分</div></div>`;}).join('');show('endScreen');}
-function openModal(title,body,actHtml){document.getElementById('mTitle').textContent=title;const mb=document.getElementById('mBody');if(typeof body==='string'&&body.includes('<')){mb.innerHTML=body;mb.style.whiteSpace='normal';}else{mb.textContent=body;mb.style.whiteSpace='pre-line';}document.getElementById('mActs').innerHTML=actHtml;document.getElementById('modalBg').classList.add('on');}
+function endGame(){const s=[...G.players].sort((a,b)=>b.score-a.score);const m=['🥇','🥈','🥉','4th','5th','6th'];document.getElementById('finalPodium').innerHTML=s.map((p,i)=>{const a=AVMAP[p.role.name]||{e:'👤',bg:'rgba(160,160,192,.25)'};return`<div class="podium-row"><div class="p-rank">${m[i]||i+1}</div><div style="width:30px;height:30px;border-radius:50%;background:${a.bg};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-right:8px">${a.e}</div><div class="p-name">${p.name}<span class="p-role"> [${p.role.name}${p.bonusCard?' / '+p.bonusCard.name:''}]</span></div><div class="p-score">${p.score}分</div></div>`;}).join('');show('endScreen');}function openModal(title,body,actHtml){document.getElementById('mTitle').textContent=title;const mb=document.getElementById('mBody');if(typeof body==='string'&&body.includes('<')){mb.innerHTML=body;mb.style.whiteSpace='normal';}else{mb.textContent=body;mb.style.whiteSpace='pre-line';}document.getElementById('mActs').innerHTML=actHtml;document.getElementById('modalBg').classList.add('on');}
 function closeModal(){document.getElementById('modalBg').classList.remove('on');}
 </script>
+</body></html>
